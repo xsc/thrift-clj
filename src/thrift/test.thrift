@@ -5,3 +5,7 @@ struct Person {
     2: optional string lastName,
     3: byte age
 }
+
+service TestServer {
+    i32 storePerson(1:Person p)
+}

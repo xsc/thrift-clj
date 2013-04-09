@@ -33,6 +33,32 @@
     2 :optional
     3 :default })
 
+;; ### Type-specific Handling
+
+(defmethod extend-field-metadata-map :bool
+  [m _]
+  (assoc m :wrapper `byte))
+
+(defmethod extend-field-metadata-map :byte
+  [m _]
+  (assoc m :wrapper `byte))
+
+(defmethod extend-field-metadata-map :i16
+  [m _]
+  (assoc m :wrapper `int))
+
+(defmethod extend-field-metadata-map :i32
+  [m _]
+  (assoc m :wrapper `int))
+
+(defmethod extend-field-metadata-map :i64
+  [m _]
+  (assoc m :wrapper `long))
+
+(defmethod extend-field-metadata-map :string
+  [m _]
+  (assoc m :wrapper `str))
+
 ;; ### Metadata
 
 (defn- create-field-metadata-map

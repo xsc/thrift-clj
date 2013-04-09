@@ -46,9 +46,13 @@
        (clj->thrift [~'_]
          (doto (new ~cls)
            ~@(for [[field sym] (map vector mta fields)]
-               `(.setFieldValue
-                  (~(symbol (str cls "$_Fields/findByThriftId")) ~(:id field))
-                  ~sym)))))))
+               (let [id (:id field)
+                     v (if-let [w (:wrapper field)]
+                         `(~w ~sym)
+                         sym)]
+                 `(.setFieldValue
+                    (~(symbol (str cls "$_Fields/findByThriftId")) ~id)
+                    ~v))))))))
 
 (defn- extend-thrift-type
   "Let the given Thrift Type implement the protocol `ThriftType`, making it

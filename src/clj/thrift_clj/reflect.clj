@@ -1,10 +1,10 @@
 (ns ^{ :doc "Using Reflection to get Thrift Entities."
        :author "Yannick Scherer" }
   thrift-clj.reflect
-  (:import (org.reflections Reflections)
-           (org.reflections.scanners Scanner SubTypesScanner)
+  (:import (org.reflections Reflections ReflectionUtils)
+           (org.reflections.scanners Scanner SubTypesScanner TypeElementsScanner)
            (org.reflections.util ClasspathHelper ConfigurationBuilder FilterBuilder)
-           (org.apache.thrift TBase)))
+           (org.apache.thrift TBase TProcessor)))
 
 ;; ## Google Reflection Helpers
 
@@ -25,23 +25,25 @@
 
 (defn- ^"[Lorg.reflections.scanners.Scanner;" create-scanners
   "Create Scanners needed for usage of `Reflections.getSubTypesOf`."
-  []
+  [scanners]
   (->>
-    [(SubTypesScanner.)]
+    (concat
+      [(SubTypesScanner.)]
+      scanners)
     (into-array Scanner)))
 
 (defn- ^ConfigurationBuilder create-configuration
   "Create Configuration needed for analysis of the given packages."
-  [packages]
+  [packages scanners]
   (doto (ConfigurationBuilder.)
     (.filterInputsBy (create-prefix-filter packages))
     (.setUrls (create-classpath-urls packages))
-    (.setScanners (create-scanners))))
+    (.setScanners (create-scanners scanners))))
 
 (defn- ^Reflections create-reflection
   "Create `Reflections` object capable of examining the given packages."
-  [packages]
-  (let [config (create-configuration packages)]
+  [packages & scanners]
+  (let [config (create-configuration packages scanners)]
     (Reflections. config)))
 
 ;; ## General Reflection Helpers
@@ -74,3 +76,17 @@
   [packages]
   (let [reflect (create-reflection packages)]
     (.getSubTypesOf reflect TBase)))
+
+(defn thrift-processors
+  "Get set of Classes implementing `org.apache.thrift.TProcessor`, i.e.
+   Thrift-generated Processors."
+  [packages]
+  (let [reflect (create-reflection packages)]
+    (.getSubTypesOf reflect TProcessor)))
+
+(defn thrift-services
+  "Get set of classes containing an `org.apache.thrift.TProcessor`, i.e.
+   Thrift-generated Services."
+  [packages]
+  (let [processors (thrift-processors packages)]
+    (set (map #(.getDeclaringClass %) processors))))
