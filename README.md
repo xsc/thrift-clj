@@ -40,14 +40,15 @@ is not supported.)
 
 ```clojure
 (def some-person (Person. "Some" "One" (byte 24)))
-(println some-person) 
 ;; => #user.Person{:firstName Some, :lastName One, :age 24}
 
 (def some-thrift-person (clj->thrift some-person))
-(println some-thrift-person) 
 ;; => #<Person Person(firstName:Some, lastName:One, age:24)>
 
-(println (thrift->clj some-thrift-person)) 
+(class some-thrift-person)
+;; => org.example.Person
+
+(thrift->clj some-thrift-person)
 ;; => #user.Person{:firstName Some, :lastName One, :age 24}
 ``` 
 
