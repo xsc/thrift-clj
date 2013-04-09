@@ -18,6 +18,14 @@
        ~@type-definitions)))
 
 ;; ## Types
+;;
+;; For each Thrift type, we will create a Clojure type of the same name.
+;; The Thrift type will be extended to implement conversion to Clojure,
+;; whilst the Clojure type will be extended to implement the opposite 
+;; direction.
+;;
+;; __NOTE:__ We do not have to use `import` because Google Reflections will already
+;; have loaded the class.
 
 (defn- generate-thrift-constructor
   [t n cls-symbol constructors]

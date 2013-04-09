@@ -4,6 +4,7 @@
   (:import (org.reflections Reflections)
            (org.reflections.scanners Scanner SubTypesScanner)
            (org.reflections.util ClasspathHelper ConfigurationBuilder FilterBuilder)
+           (java.lang.reflect Field)
            (org.apache.thrift TBase)))
 
 ;; ## Google Reflection Helpers
@@ -57,10 +58,12 @@
       constructors)))
 
 (defn full-class-symbol
+  "Get Symbol representing Class (including Package)."
   [^Class class]
   (symbol (.getName class)))
 
 (defn class-symbol
+  "Get Symbol representing Class (without Package)."
   [^Class class]
   (symbol (.getSimpleName class)))
 
@@ -72,3 +75,16 @@
   [packages]
   (let [reflect (create-reflection packages)]
     (.getSubTypesOf reflect TBase)))
+
+(def thrift-type-metadata
+  "Get Map associating a Thrift Type's fields (as strings) with their Metadata."
+  (let [prototype (java.util.HashMap.)]
+    (fn [^Class class]
+      (when-let [^Field         f (.getDeclaredField class "metaDataMap")]
+        (let [^java.util.Map m (.get f prototype)]
+          (->>
+            (map
+              (fn [[k v]]
+                [(.getFieldName k) v])
+              m)
+            (into {})))))))
