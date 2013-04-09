@@ -40,10 +40,15 @@ is not supported.)
 
 ```clojure
 (def some-person (Person. "Some" "One" (byte 24)))
-(pprint some-person) ;; => {:firstName "Some", :lastName "One", :age 24}
+(println some-person) 
+;; => #user.Person{:firstName Some, :lastName One, :age 24}
 
 (def some-thrift-person (clj->thrift some-person))
-(pprint some-thrift-person) ;; => #<Person Person(firstName:Some, lastName:One, age:24)>
+(println some-thrift-person) 
+;; => #<Person Person(firstName:Some, lastName:One, age:24)>
+
+(println (thrift->clj some-thrift-person)) 
+;; => #user.Person{:firstName Some, :lastName One, :age 24}
 ``` 
 
 Now, that's all I got so far. As you can see there is no automatic conversion from `int`/`long`
