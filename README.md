@@ -1,6 +1,6 @@
 # thrift-clj
 
-A Clojure library designed to ... well, that part is up to you.
+Using Thrift from Clojure as if it was Clojure.
 
 ## Example
 
