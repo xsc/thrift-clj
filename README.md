@@ -56,6 +56,11 @@ to `byte`, so we have to manually cast the number. To facilitate this is on the 
 - convenience functionality (e.g. automatic casting where possible)
 - ...
 
+## Related Work/Inspiration
+
+- [Apache Thrift](https://github.com/apache/thrift)
+- [Plaid Penguin](https://github.com/ithayer/plaid-penguin)
+
 ## License
 
 Copyright &copy; 2013 Yannick Scherer
