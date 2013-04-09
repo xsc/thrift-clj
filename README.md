@@ -49,6 +49,13 @@ is not supported.)
 Now, that's all I got so far. As you can see there is no automatic conversion from `int`/`long`
 to `byte`, so we have to manually cast the number. To facilitate this is on the TODO list as well.
 
+## Roadmap
+
+- wrappers around Protocols (to encode/decode values directly to/from byte arrays)
+- wrappers around Services, letting code operate on Clojue data rather than Thrift objects
+- convenience functionality (e.g. automatic casting where possible)
+- ...
+
 ## License
 
 Copyright &copy; 2013 Yannick Scherer
