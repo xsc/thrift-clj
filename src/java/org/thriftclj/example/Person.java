@@ -44,7 +44,7 @@ public class Person implements org.apache.thrift.TBase<Person, Person._Fields>, 
   }
 
   public String firstName; // required
-  public String lastName; // required
+  public String lastName; // optional
   public byte age; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -114,12 +114,13 @@ public class Person implements org.apache.thrift.TBase<Person, Person._Fields>, 
   // isset id assignments
   private static final int __AGE_ISSET_ID = 0;
   private byte __isset_bitfield = 0;
+  private _Fields optionals[] = {_Fields.LAST_NAME};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.FIRST_NAME, new org.apache.thrift.meta_data.FieldMetaData("firstName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.LAST_NAME, new org.apache.thrift.meta_data.FieldMetaData("lastName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.LAST_NAME, new org.apache.thrift.meta_data.FieldMetaData("lastName", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.AGE, new org.apache.thrift.meta_data.FieldMetaData("age", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
@@ -132,12 +133,10 @@ public class Person implements org.apache.thrift.TBase<Person, Person._Fields>, 
 
   public Person(
     String firstName,
-    String lastName,
     byte age)
   {
     this();
     this.firstName = firstName;
-    this.lastName = lastName;
     this.age = age;
     setAgeIsSet(true);
   }
@@ -413,14 +412,16 @@ public class Person implements org.apache.thrift.TBase<Person, Person._Fields>, 
       sb.append(this.firstName);
     }
     first = false;
-    if (!first) sb.append(", ");
-    sb.append("lastName:");
-    if (this.lastName == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.lastName);
+    if (isSetLastName()) {
+      if (!first) sb.append(", ");
+      sb.append("lastName:");
+      if (this.lastName == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.lastName);
+      }
+      first = false;
     }
-    first = false;
     if (!first) sb.append(", ");
     sb.append("age:");
     sb.append(this.age);
@@ -515,9 +516,11 @@ public class Person implements org.apache.thrift.TBase<Person, Person._Fields>, 
         oprot.writeFieldEnd();
       }
       if (struct.lastName != null) {
-        oprot.writeFieldBegin(LAST_NAME_FIELD_DESC);
-        oprot.writeString(struct.lastName);
-        oprot.writeFieldEnd();
+        if (struct.isSetLastName()) {
+          oprot.writeFieldBegin(LAST_NAME_FIELD_DESC);
+          oprot.writeString(struct.lastName);
+          oprot.writeFieldEnd();
+        }
       }
       oprot.writeFieldBegin(AGE_FIELD_DESC);
       oprot.writeByte(struct.age);
