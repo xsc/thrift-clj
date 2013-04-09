@@ -40,11 +40,13 @@
     (.setUrls (create-classpath-urls packages))
     (.setScanners (create-scanners scanners))))
 
-(defn- ^Reflections create-reflection
+(defn- ^Reflections create-reflection*
   "Create `Reflections` object capable of examining the given packages."
   [packages & scanners]
   (let [config (create-configuration packages scanners)]
     (Reflections. config)))
+
+(def create-reflection (memoize create-reflection*))
 
 ;; ## General Reflection Helpers
 
@@ -68,6 +70,10 @@
   [^Class class]
   (symbol (.getSimpleName class)))
 
+(defn inner-class
+  [^Class class ^String name]
+  (first (filter #(= (.getSimpleName %) name) (.getDeclaredClasses class))))
+
 ;; ## Thrift-specific Functions
 
 (defn thrift-types
@@ -75,7 +81,9 @@
    generated Types."
   [packages]
   (let [reflect (create-reflection packages)]
-    (.getSubTypesOf reflect TBase)))
+    (filter
+      #(nil? (.getDeclaringClass %))
+      (.getSubTypesOf reflect TBase))))
 
 (defn thrift-processors
   "Get set of Classes implementing `org.apache.thrift.TProcessor`, i.e.
@@ -88,5 +96,18 @@
   "Get set of classes containing an `org.apache.thrift.TProcessor`, i.e.
    Thrift-generated Services."
   [packages]
-  (let [processors (thrift-processors packages)]
-    (set (map #(.getDeclaringClass %) processors))))
+  (let [processors (thrift-processors packages)
+        services (map #(.getDeclaringClass %) processors)]
+    (set (filter (complement nil?) services))))
+
+(defn thrift-service-methods
+  "Get seq of methods defined in a service."
+  [service]
+  (when-let [iface (inner-class service "Iface")]
+    (map 
+      (fn [m]
+        (-> {}
+          (assoc :name (.getName m))
+          (assoc :params (into [] (.getParameterTypes m)))
+          (assoc :returns (.getReturnType m))))
+      (.getMethods iface))))
