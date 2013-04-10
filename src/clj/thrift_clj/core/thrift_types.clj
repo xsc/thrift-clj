@@ -56,7 +56,7 @@
                          sym)]
                  `(.setFieldValue
                     (~(u/static (u/inner cls "_Fields") "findByThriftId") ~(:id field))
-                    ~v))))))))
+                    (clj->thrift ~v)))))))))
 
 (defn- extend-thrift-type
   "Let the given Thrift Type implement the protocol `ThriftType`, making it
@@ -68,9 +68,10 @@
        (thrift->clj* [~this-sym]
          (new ~n 
               ~@(for [field mta]
-                  `(.getFieldValue 
-                     ~this-sym 
-                     (~(u/static (u/inner cls "_Fields") "findByThriftId") ~(:id field)))))))))
+                  `(thrift->clj
+                     (.getFieldValue 
+                       ~this-sym 
+                       (~(u/static (u/inner cls "_Fields") "findByThriftId") ~(:id field))))))))))
 
 (defn generate-thrift-types
   "Generate a Clojure Type that corresponds to a given Thrift Type."
