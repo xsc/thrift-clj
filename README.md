@@ -58,7 +58,7 @@ This will make the type `Person` directly accessible in Clojure.
 Now, let's tackle the service `PersonIndex`. We can implement it using only Clojure:
 
 ```clojure
-(thrift/import-service [org.example.PersonIndex :as PersonIndex])
+(thrift/import-services [org.example.PersonIndex :as PersonIndex])
 (thrift/defservice person-index
   PersonIndex
   (store [p]
