@@ -12,4 +12,4 @@ pom.xml.asc
 .lein-repl-history
 *.swp
 *~
-src/java
+example/java
