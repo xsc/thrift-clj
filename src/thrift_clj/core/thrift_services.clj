@@ -51,7 +51,7 @@
                  `(~(symbol name) [~@params]
                      (debug ~(str "[" n "." name "]") "Entering Method ...")
                      (if-let [h# (get ~handler ~(keyword name))]
-                       (let [r# (clj->thrift (h# ~@(map #(list `thrift->clj %) params)))]
+                       (let [r# (->thrift (h# ~@(map #(list `->clj %) params)))]
                          (debug  ~(str "[" n "." name "]") "Done.")
                          r#)
                        (throw (Exception. ~(str "[Thrift] Service Method not implemented: " n "." name)))))))))

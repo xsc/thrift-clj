@@ -57,7 +57,7 @@
                          sym)]
                  `(.setFieldValue
                     (~(u/static (u/inner cls "_Fields") "findByThriftId") ~(:id field))
-                    (clj->thrift ~v)))))))))
+                    (->thrift ~v)))))))))
 
 (defn- extend-thrift-type
   "Let the given Thrift Type implement the protocol `ThriftType`, making it
