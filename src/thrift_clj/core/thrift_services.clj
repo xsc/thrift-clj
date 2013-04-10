@@ -16,6 +16,10 @@
    a map of method-keyword/function pairs using a class."
   (fn [cls m] cls))
 
+(defmulti iface->processor
+  "Multimethod that converts an Iface to a Processor."
+  class)
+
 (defmacro defservice
   "Implement the given Service (a fully qualified class name)."
   [id service-cls & implementation]
@@ -29,11 +33,12 @@
 
 ;; ## Form Generation
 
-(defn- generate-thrift-processor
+(defn- generate-thrift-iface
   "Make a given Service accessible by `defservice` by implementing the multimethod
-   `map->processor` for the fully qualified class name given."
+   `map->iface` for the fully qualified class name given."
   [n cls mth]
-  (let [iface (u/inner cls "Iface")
+  (let [proc (u/inner cls "Processor")
+        iface (u/inner cls "Iface")
         param-syms (repeatedly gensym)
         handler (gensym "handler-")
         conv-sym (gensym)]
@@ -52,16 +57,17 @@
                        (throw (Exception. ~(str "[Thrift] Service Method not implemented: " n "." name)))))))))
        (defmethod map->iface ~cls
          [~'_ m#]
-         (~conv-sym m#)))))
+         (~conv-sym m#))
+       (defmethod iface->processor ~iface
+         [this#]
+         (new ~proc this#))
+       (def ~n ~cls))))
 
-(defn generate-thrift-services
-  "Generate everything needed for accessing Thrift Services."
-  [packages]
-  (let [services (reflect/thrift-services packages)]
-    (for [s services]
-      (let [n (u/class-symbol s)
-            cls (u/full-class-symbol s)
-            mth (reflect/thrift-service-methods s)]
-        `(do
-           ~(generate-thrift-client n cls mth)
-           ~(generate-thrift-processor n cls mth))))))
+(defn import-thrift-services
+  "Import Thrift services given as a map of service-class/service-name pairs."
+  [service-map]
+  (for [[s n] service-map]
+    (let [n (or n (u/class-symbol s))
+          cls (u/full-class-symbol s)
+          mth (reflect/thrift-service-methods s)]
+      (generate-thrift-iface n cls mth))))

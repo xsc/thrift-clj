@@ -1,6 +1,7 @@
 (ns ^{ :doc "Wrappers for Server Creation"
        :author "Yannick Scherer" }
   thrift-clj.server
+  (:require [thrift-clj.core.thrift-services :as s])
   (:import (org.apache.thrift.server
              TServer TServer$Args
              TSimpleServer
@@ -17,7 +18,7 @@
 (defmacro ^:private wrap-args
   [cls transport processor]
   `(-> (new ~cls ~transport)
-     (.processor ~processor)))
+     (.processor (s/iface->processor ~processor))))
 
 ;; ## Server Transport
 

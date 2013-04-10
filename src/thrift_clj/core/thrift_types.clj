@@ -1,7 +1,8 @@
 (ns ^{ :doc "Thrift Type Import"
        :author "Yannick Scherer" }
   thrift-clj.core.thrift-types
-  (:use [potemkin.types :only [defrecord+]])
+  (:use [potemkin.types :only [defrecord+]]
+        clojure.tools.logging)
   (:require [thrift-clj.thrift :as thrift]
             [thrift-clj.utils :as u]))
 
@@ -26,14 +27,14 @@
   "Protocol for Thrift Values that can be converted to a Clojure equivalent."
   (thrift->clj* [this]))
 
-(defn clj->thrift
+(defn ->thrift
   "Convert Clojure Type to Thrift Type if possible."
   [v]
   (if (satisfies? ClojureType v)
     (clj->thrift* v)
     v))
 
-(defn thrift->clj
+(defn ->clj
   "Convert Thrift Type to Clojure Type if possible."
   [v]
   (if (satisfies? ThriftType v)
@@ -79,9 +80,15 @@
   [type-map]
   (for [[t n] type-map]
     (let [n (or n (u/class-symbol t))
-          cls (u/full-class-symbol t)
-          mta (thrift/type-metadata t)]
-      `(do
-         ~(generate-clojure-type n cls mta)
-         ~(extend-thrift-type n cls mta)
-         true))))
+          cls (u/full-class-symbol t)]
+      (try
+        (when-let [mta (thrift/type-metadata t)]
+          `(do
+             ~(generate-clojure-type n cls mta)
+             ~(extend-thrift-type n cls mta)
+             true))
+        (catch Exception ex
+          (error ex "when importing type:" cls)
+          (throw (Exception.
+                   (str "Error when importing `" cls "': " (.getMessage ex))
+                   ex)))))))

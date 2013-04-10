@@ -3,8 +3,7 @@
   thrift-clj.core.thrift-clients
   (:require [thrift-clj.reflect :as reflect]
             [thrift-clj.thrift :as thrift]
-            [thrift-clj.utils :as u]
-            [thrift-clj.client :as c])
+            [thrift-clj.utils :as u])
   (:use thrift-clj.core.thrift-types))
 
 ;; ## Protocol
@@ -32,13 +31,6 @@
 (defmulti wrap-client
   "Wrap Thrift Client to satisfy protocol Client."
   (fn [cls client transport] cls))
-
-(defmacro create-client
-  "Create Client."
-  [cls k & args]
-  `(let [t# (c/create-client-transport ~k ~@args)
-         p# (org.apache.thrift.protocol.TBinaryProtocol. t#)]
-     (wrap-client ~cls (new ~(u/inner cls "Client") p#) t#)))
 
 ;; ## Form Generation
 
@@ -71,4 +63,14 @@
                      ~@(map #(list `clj->thrift %) params))))))
        (defmethod wrap-client ~cls
          [~'_ client# transport#]
-         (new ~wrap-sym client# transport#)))))
+         (new ~wrap-sym client# transport#))
+       (def ~n ~cls))))
+
+(defn import-thrift-clients
+  "Import Thrift Clients for map of service-class/client-name pairs."
+  [service-map]
+  (for [[s n] service-map]
+    (let [n (or n (u/class-symbol s))
+          cls (u/full-class-symbol s)
+          mth (reflect/thrift-service-methods s)]
+      (generate-thrift-client n cls mth))))

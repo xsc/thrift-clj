@@ -79,9 +79,11 @@
   "Get Seq of Type Field Metadata Maps."
   (let [prototype (java.util.HashMap.)]
     (fn [^Class class]
-      (when-let [^Field f (.getDeclaredField class "metaDataMap")]
-        (let [^java.util.Map m (.get f prototype)]
-          (map
-            (fn [[k metadata-obj]]
-              (create-field-metadata-map k metadata-obj))
-            m))))))
+      (try
+        (when-let [^Field f (.getDeclaredField class "metaDataMap")]
+          (let [^java.util.Map m (.get f prototype)]
+            (map
+              (fn [[k metadata-obj]]
+                (create-field-metadata-map k metadata-obj))
+              m)))
+        (catch Exception _ nil)))))
