@@ -2,6 +2,9 @@
 
 Using Thrift from Clojure as if it was Clojure.
 
+__Note__: Tested with the Thrift 0.9.0 compiler. Since this depends massively on the generated code, make sure to use
+that version (or any other one that was tested with this library).
+
 ## Example
 
 __test.thrift__
