@@ -44,8 +44,12 @@
         cln (u/inner cls "Client")
         param-syms (repeatedly gensym)
         client (gensym "client-")
-        wrap-sym (gensym (str n "Client"))]
+        wrap-sym (gensym (str n "Client"))
+        current-ns (ns-name *ns*)
+        client-ns (symbol (str "namespace-" n "Client"))]
     `(do
+       (ns ns#)
+
        (deftype ~wrap-sym [~client transport#]
          Client
          (start-client! [~'_]
@@ -58,19 +62,25 @@
              (let [params (take (count params) param-syms)]
                `(~(symbol name) [this# ~@params]
                    (. ~client ~(symbol name) ~@params)))))
+
        ~@(for [{:keys[name params]} mth]
            (let [params (take (count params) param-syms)]
-             `(defn ~(symbol (str n "->" name))
+             `(defn ~(symbol name)
                 [client# ~@params]
                 (->clj
                   (. client# ~(symbol name) 
                      ~@(map #(list `->thrift %) params))))))
+       
        (defmethod wrap-client ~cln
          [~'_ client# transport#]
          (new ~wrap-sym client# transport#))
+
        (defmethod new-client ~cln
          [~'_ proto#]
          (new ~cln proto#))
+
+       (in-ns '~current-ns)
+       (require '[ns# :as ~n])
        (def ~n ~cln))))
 
 (defn import-thrift-clients

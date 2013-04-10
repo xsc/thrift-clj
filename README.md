@@ -82,13 +82,13 @@ Clients can be created similarly:
 ```
 
 There are two ways to call a service method: either directly using the Java methods 
-(which requires all parameters to have the right type), or using the generated 
-`<Client>-><Method>` functions that handles type conversion automatically:
+(which requires all parameters to have the right type), or using the functions generated
+in a namespace aliased with whatever was given in the `:as` part of `import-clients`:
 
 ```clojure
 (.store client some-person)             ;; => Exception!!
 (.store client some-thrift-person)      ;; => true
-(PersonIndexClient->store client some-person) ;; => true
+(PersonIndexClient/store client some-person) ;; => true
 ```
 
 Cleanup
