@@ -10,9 +10,13 @@ __test.thrift__
 namespace java org.example
 
 struct Person {
-  1: string firstName,
-  2: optional string lastName,
+  1: optional string firstName,
+  2: string lastName,
   3: byte age
+}
+
+service PersonIndex {
+    bool store(1:Person p)
 }
 ```
 
@@ -39,7 +43,7 @@ specifications with `:only` or `:exclude` should be possible. As of now, loading
 is not supported.)
 
 ```clojure
-(def some-person (Person. "Some" "One" (byte 24)))
+(def some-person (Person. "Some" "One" 24))
 ;; => #user.Person{:firstName Some, :lastName One, :age 24}
 
 (def some-thrift-person (clj->thrift some-person))
@@ -52,14 +56,52 @@ is not supported.)
 ;; => #user.Person{:firstName Some, :lastName One, :age 24}
 ``` 
 
-Now, that's all I got so far. As you can see there is no automatic conversion from `int`/`long`
-to `byte`, so we have to manually cast the number. To facilitate this is on the TODO list as well.
+Now, let's tackle the service `PersonIndex`. We can implement it using only Clojure:
+
+```clojure
+(defservice PersonIndexImpl
+  org.example.PersonIndex
+  (store [p]
+    (println "Storing Person:" (:firstName p) (:lastName p))
+    true))
+```
+
+Get it up and running with:
+
+```clojure
+(require '[thrift-clj.server :as srv])
+(def server (srv/single-threaded-server PersonIndexImpl :socket 7007))
+(future (start-server! server))
+```
+
+Clients can be created similarly:
+
+```clojure
+(def client (create-client org.example.PersonIndex :socket "localhost" 7007))
+(start-client! client)
+```
+
+There are two ways to call a service method: either directly using the Java methods 
+(which requires all parameters to have the right type), or using the generated 
+`<Service>-><Method>` functions that handles type conversion automatically:
+
+```clojure
+(.store client some-person)             ;; => Exception!!
+(.store client some-thrift-person)      ;; => true
+(PersonIndex->store client some-person) ;; => true
+```
+
+Cleanup
+
+```clojure
+(stop-client! client)
+(stop-server! server)
+```
 
 ## Roadmap
 
+- Have a look at Lists/Sets/...
 - wrappers around Protocols (to encode/decode values directly to/from byte arrays)
-- wrappers around Services, letting code operate on Clojue data rather than Thrift objects
-- convenience functionality (e.g. automatic casting where possible)
 - ...
 
 ## Related Work/Inspiration
