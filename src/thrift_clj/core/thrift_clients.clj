@@ -26,11 +26,14 @@
        (finally
          (stop-client! c#)))))
 
-;; ## Multimethod
+;; ## Multimethods
 
 (defmulti wrap-client
   "Wrap Thrift Client to satisfy protocol Client."
   (fn [cls client transport] cls))
+
+(defmulti new-client
+  (fn [cls protocol] cls))
 
 ;; ## Form Generation
 
@@ -38,6 +41,7 @@
   "Make a Client accessible via `create-client`."
   [n cls mth]
   (let [iface (u/inner cls "Iface")
+        cln (u/inner cls "Client")
         param-syms (repeatedly gensym)
         client (gensym "client-")
         wrap-sym (gensym (str n "Client"))]
@@ -58,13 +62,16 @@
            (let [params (take (count params) param-syms)]
              `(defn ~(symbol (str n "->" name))
                 [client# ~@params]
-                (thrift->clj
+                (->clj
                   (. client# ~(symbol name) 
-                     ~@(map #(list `clj->thrift %) params))))))
-       (defmethod wrap-client ~cls
+                     ~@(map #(list `->thrift %) params))))))
+       (defmethod wrap-client ~cln
          [~'_ client# transport#]
          (new ~wrap-sym client# transport#))
-       (def ~n ~cls))))
+       (defmethod new-client ~cln
+         [~'_ proto#]
+         (new ~cln proto#))
+       (def ~n ~cln))))
 
 (defn import-thrift-clients
   "Import Thrift Clients for map of service-class/client-name pairs."

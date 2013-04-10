@@ -22,7 +22,7 @@
 (import-fn t/->thrift)
 (import-fn t/->clj)
 
-(import-macro cln/create-client)
+(import-fn cln/create-client)
 
 (import-fn srv/single-threaded-server)
 (import-fn srv/multi-threaded-server)

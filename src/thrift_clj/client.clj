@@ -23,10 +23,9 @@
 
 ;; ## Create Client
 
-(defmacro create-client
+(defn create-client
   "Create Client."
   [cls k & args]
-  `(let [t# (create-client-transport ~k ~@args)
-         p# (org.apache.thrift.protocol.TBinaryProtocol. t#)]
-     (c/wrap-client ~cls (new ~(u/inner cls "Client") p#) t#)))
-
+  (let [t (apply create-client-transport k args)
+        p (org.apache.thrift.protocol.TBinaryProtocol. t)]
+    (c/wrap-client cls (c/new-client cls p) t)))
