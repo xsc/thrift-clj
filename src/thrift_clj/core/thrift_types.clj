@@ -69,7 +69,7 @@
        (thrift->clj* [~this-sym]
          (new ~n 
               ~@(for [field mta]
-                  `(thrift->clj
+                  `(->clj
                      (.getFieldValue 
                        ~this-sym 
                        (~(u/static (u/inner cls "_Fields") "findByThriftId") ~(:id field))))))))))
