@@ -56,6 +56,7 @@
          (~conv-sym m#)))))
 
 (defn generate-thrift-services
+  "Generate everything needed for accessing Thrift Services."
   [packages]
   (let [services (reflect/thrift-services packages)]
     (for [s services]
