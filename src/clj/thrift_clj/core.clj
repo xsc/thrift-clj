@@ -4,11 +4,18 @@
   (:refer-clojure :exclude [load])
   (:use [potemkin :only [import-macro import-fn]])
   (:require [thrift-clj.core.thrift-types :as t]
-            [thrift-clj.core.thrift-services :as s]))
+            [thrift-clj.core.thrift-services :as s]
+            [thrift-clj.core.thrift-clients :as c]))
 
 ;; ## Imported
 
 (import-macro s/defservice)
+
+(import-macro c/create-client)
+(import-macro c/with-client)
+(import-fn c/start-client!)
+(import-fn c/stop-client!)
+
 (import-fn t/clj->thrift)
 (import-fn t/thrift->clj)
 

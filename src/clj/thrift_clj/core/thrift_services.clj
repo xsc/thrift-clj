@@ -2,19 +2,18 @@
        :author "Yannick Scherer" }
   thrift-clj.core.thrift-services
   (:require [thrift-clj.reflect :as reflect]
-            [thrift-clj.thrift :as thrift]
-            [thrift-clj.utils :as u])
+            [thrift-clj.utils :as u]
+            [thrift-clj.thrift :as thrift])
   (:use thrift-clj.core.thrift-types
-        clojure.tools.logging))
+        thrift-clj.core.thrift-clients
+        clojure.tools.logging)
+  (:import (org.apache.thrift.protocol TBinaryProtocol)))
 
 ;; ## Services
-;;
-;; Services are imported by creating wrapper functions that build the
-;; Client/Server objects, as well as TODO
 
 (defmulti map->processor
   "Multimethod that can create an `org.apache.thrift.TProcessor` by dispatching
-   a map of method-keyword/function pairs using a fully qualified class name."
+   a map of method-keyword/function pairs using a class."
   (fn [cls m] cls))
 
 (defmacro defservice
@@ -26,7 +25,7 @@
                      `(fn [~@bindings] ~@method-impl)))
             {} implementation)]
     `(def ~id
-       (map->processor '~service-cls ~m))))
+       (map->processor ~service-cls ~m))))
 
 ;; ## Form Generation
 
@@ -54,7 +53,7 @@
                            (debug  ~(str "[" n "." name "]") "Done.")
                            r#)
                          (throw (Exception. ~(str "[Thrift] Service Method not implemented: " n "." name))))))))))
-       (defmethod map->processor '~cls
+       (defmethod map->processor ~cls
          [~'_ m#]
          (~conv-sym m#)))))
 
@@ -67,4 +66,5 @@
             cls (reflect/full-class-symbol s)
             mth (reflect/thrift-service-methods s)]
         `(do
+           ~(generate-thrift-client n cls mth)
            ~(generate-thrift-processor n cls mth))))))
