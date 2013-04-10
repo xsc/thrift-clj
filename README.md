@@ -108,6 +108,7 @@ Cleanup
 
 - [Apache Thrift](https://github.com/apache/thrift)
 - [Plaid Penguin](https://github.com/ithayer/plaid-penguin)
+- [lein-thrift](https://github.com/kurtharriger/lein-thrift)
 
 ## License
 

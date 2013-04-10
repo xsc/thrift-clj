@@ -9,5 +9,9 @@
                  [org.apache.thrift/libthrift "0.9.0"]
                  [javax.servlet/servlet-api "2.5"]
                  [potemkin "0.2.2-SNAPSHOT"]]
-  :profiles { :dev { :dependencies [[org.slf4j/slf4j-log4j12 "1.5.2"]] } }
-  :java-source-paths ["example/java"])
+  :profiles {:dev {:dependencies [[org.slf4j/slf4j-log4j12 "1.5.2"]]}
+             :example {:thrift-java-path "example/java"
+                       :thrift-source-path "example/thrift"
+                       :java-source-paths ["example/java"]
+                       :plugins [[lein-thrift "0.1.0"]]}}
+  :aliases {"example-repl" ["with-profile" "dev,example" "do" "thrift" "," "repl"]})

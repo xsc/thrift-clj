@@ -48,7 +48,7 @@
         current-ns (ns-name *ns*)
         client-ns (symbol (str "namespace-" n "Client"))]
     `(do
-       (ns ns#)
+       (ns ~client-ns)
 
        (deftype ~wrap-sym [~client transport#]
          Client
@@ -80,7 +80,7 @@
          (new ~cln proto#))
 
        (in-ns '~current-ns)
-       (require '[ns# :as ~n])
+       (require '[~client-ns :as ~n])
        (def ~n ~cln))))
 
 (defn import-thrift-clients
