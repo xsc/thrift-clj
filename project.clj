@@ -4,6 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
+                 [org.clojure/tools.logging "0.2.6"]
                  [org.reflections/reflections "0.9.9-RC1"]
                  [org.apache.thrift/libthrift "0.9.0"]
                  [javax.servlet/servlet-api "2.5"]

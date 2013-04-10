@@ -4,7 +4,8 @@
   (:require [thrift-clj.reflect :as reflect]
             [thrift-clj.thrift :as thrift]
             [thrift-clj.utils :as u])
-  (:use thrift-clj.core.thrift-types))
+  (:use thrift-clj.core.thrift-types
+        clojure.tools.logging))
 
 ;; ## Services
 ;;
@@ -47,9 +48,11 @@
              ~@(for [{:keys[name params]} mth]
                  (let [params (take (count params) param-syms)]
                    `(~(symbol name) [~@params]
+                       (debug ~(str "[" n "." name "]") "Entering Method ...")
                        (if-let [h# (get ~handler ~(keyword name))]
-                         (clj->thrift
-                           (h# ~@(map #(list `thrift->clj %) params)))
+                         (let [r# (clj->thrift (h# ~@(map #(list `thrift->clj %) params)))]
+                           (debug  ~(str "[" n "." name "]") "Done.")
+                           r#)
                          (throw (Exception. ~(str "[Thrift] Service Method not implemented: " n "." name))))))))))
        (defmethod map->processor '~cls
          [~'_ m#]
@@ -62,7 +65,6 @@
     (for [s services]
       (let [n (reflect/class-symbol s)
             cls (reflect/full-class-symbol s)
-            mth (reflect/thrift-service-methods s)
-            iface (gensym "iface-")]
+            mth (reflect/thrift-service-methods s)]
         `(do
            ~(generate-thrift-processor n cls mth))))))

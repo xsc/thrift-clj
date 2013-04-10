@@ -31,6 +31,8 @@
   [_ port]
   (TServerSocket. port))
 
+;; ### :socket-nio
+
 (defmethod create-server-transport :socket-nio
   [_ port]
   (TNonblockingServerSocket. port))
@@ -63,9 +65,11 @@
 (defn start-server!
   "Start the given Server."
   [^TServer srv]
-  (.serve srv))
+  (.serve srv)
+  srv)
 
 (defn stop-server!
   "Stop the given Server."
   [^TServer srv]
-  (.stop srv))
+  (.stop srv)
+  srv)
