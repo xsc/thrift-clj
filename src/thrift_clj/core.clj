@@ -147,4 +147,5 @@
          (case k
            :services `(import-services ~@rst)
            :types `(import-types ~@rst)
+           :packages `(import-all ~@rst)
            (throw (Exception. (str "Invalid Key in `import': " k)))))))

@@ -36,34 +36,31 @@ __REPL__
 
 ```clojure
 (require '[thrift-clj.core :as thrift])
-(use '[thrift-clj.core :exclude [load]])
-(thrift/load "org.example")
+(thrift/import-types org.example.Person)
 ```
 
-This will load all types that reside in a package _prefixed by_ "org.example". Clojure types
-of the same name will be created in the current namespace. (In future releases, `require`-like
-specifications with `:only` or `:exclude` should be possible. As of now, loading of a single type
-is not supported.)
+This will make the type `Person` directly accessible in Clojure.
 
 ```clojure
 (def some-person (Person. "Some" "One" 24))
 ;; => #user.Person{:firstName Some, :lastName One, :age 24}
 
-(def some-thrift-person (clj->thrift some-person))
+(def some-thrift-person (thrift/->thrift some-person))
 ;; => #<Person Person(firstName:Some, lastName:One, age:24)>
 
 (class some-thrift-person)
 ;; => org.example.Person
 
-(thrift->clj some-thrift-person)
+(thrift/->clj some-thrift-person)
 ;; => #user.Person{:firstName Some, :lastName One, :age 24}
 ``` 
 
 Now, let's tackle the service `PersonIndex`. We can implement it using only Clojure:
 
 ```clojure
-(defservice PersonIndexImpl
-  org.example.PersonIndex
+(thrift/import-service [org.example.PersonIndex :as PersonIndex])
+(thrift/defservice person-index
+  PersonIndex
   (store [p]
     (println "Storing Person:" (:firstName p) (:lastName p))
     true))
@@ -72,33 +69,33 @@ Now, let's tackle the service `PersonIndex`. We can implement it using only Cloj
 Get it up and running with:
 
 ```clojure
-(require '[thrift-clj.server :as srv])
-(def server (srv/single-threaded-server PersonIndexImpl :socket 7007))
-(future (start-server! server))
+(def server (thrift/single-threaded-server person-index :socket 7007))
+(future (thrift/start-server! server))
 ```
 
 Clients can be created similarly:
 
 ```clojure
-(def client (create-client org.example.PersonIndex :socket "localhost" 7007))
-(start-client! client)
+(thrift/import-clients [org.example.PersonIndex :as PersonIndexClient])
+(def client (thrift/create-client PersonIndexClient :socket "localhost" 7007))
+(thrift/start-client! client)
 ```
 
 There are two ways to call a service method: either directly using the Java methods 
 (which requires all parameters to have the right type), or using the generated 
-`<Service>-><Method>` functions that handles type conversion automatically:
+`<Client>-><Method>` functions that handles type conversion automatically:
 
 ```clojure
 (.store client some-person)             ;; => Exception!!
 (.store client some-thrift-person)      ;; => true
-(PersonIndex->store client some-person) ;; => true
+(PersonIndexClient->store client some-person) ;; => true
 ```
 
 Cleanup
 
 ```clojure
-(stop-client! client)
-(stop-server! server)
+(thrift/stop-client! client)
+(thrift/stop-server! server)
 ```
 
 ## Roadmap
