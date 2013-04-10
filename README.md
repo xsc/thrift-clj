@@ -2,6 +2,19 @@
 
 Using Thrift from Clojure as if it was Clojure.
 
+__Note__: This is an alpha release. The API might change at any point (but, at least for the most prominent parts, 
+probably won't).
+
+## Usage
+
+thrift-clj is available via [Clojars](http://clojars.org/thrift-clj).
+
+__Leiningen__
+
+```clojure
+[thrift-clj "0.1.0-alpha1"]
+```
+
 __Note__: Tested with the Thrift 0.9.0 compiler. Since this depends massively on the generated code, make sure to use
 that version (or any other one that was tested with this library).
 

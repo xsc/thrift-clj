@@ -8,7 +8,7 @@
                  [org.reflections/reflections "0.9.9-RC1"]
                  [org.apache.thrift/libthrift "0.9.0"]
                  [javax.servlet/servlet-api "2.5"]
-                 [potemkin "0.2.2-SNAPSHOT"]]
+                 [potemkin "0.2.1"]]
   :profiles {:dev {:dependencies [[org.slf4j/slf4j-log4j12 "1.5.2"]]}
              :example {:thrift-java-path "example/java"
                        :thrift-source-path "example/thrift"
