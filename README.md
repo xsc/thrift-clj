@@ -115,7 +115,7 @@ Cleanup
 
 - Have a look at Lists/Sets/Enums/...
 - wrappers around Protocols (to encode/decode values directly to/from byte arrays)
-- tests & documentation
+- more protocols/servers/clients
 - a Leiningen Plugin that operates with thrift-clj in mind
 - tests & documentationn
 - ...
