@@ -1,8 +1,8 @@
 (ns ^{ :doc "Thrift Type Import"
        :author "Yannick Scherer" }
   thrift-clj.core.thrift-types
-  (:require [thrift-clj.reflect :as reflect]
-            [thrift-clj.thrift :as thrift]
+  (:use [potemkin.types :only [defrecord+]])
+  (:require [thrift-clj.thrift :as thrift]
             [thrift-clj.utils :as u]))
 
 ;; ## Types
@@ -46,7 +46,7 @@
   "Generate Record Type that can be converted to its Thrift equivalent."
   [n cls mta]
   (let [fields (map (comp symbol :name) mta)]
-    `(defrecord ~n [~@fields]
+    `(defrecord+ ~n [~@fields]
        ClojureType
        (clj->thrift* [~'_]
          (doto (new ~cls)
@@ -73,15 +73,15 @@
                        ~this-sym 
                        (~(u/static (u/inner cls "_Fields") "findByThriftId") ~(:id field))))))))))
 
-(defn generate-thrift-types
-  "Generate a Clojure Type that corresponds to a given Thrift Type."
-  [packages]
-  (let [types (reflect/thrift-types packages)]
-    (for [t types]
-      (let [n (reflect/class-symbol t)
-            cls (reflect/full-class-symbol t)
-            mta (thrift/type-metadata t)]
-        `(do
-           ~(generate-clojure-type n cls mta)
-           ~(extend-thrift-type n cls mta)
-           true)))))
+(defn import-thrift-types
+  "Generate a Clojure Type that corresponds to a given Thrift Type for
+   a map of type-class/type-name pairs."
+  [type-map]
+  (for [[t n] type-map]
+    (let [n (or n (u/class-symbol t))
+          cls (u/full-class-symbol t)
+          mta (thrift/type-metadata t)]
+      `(do
+         ~(generate-clojure-type n cls mta)
+         ~(extend-thrift-type n cls mta)
+         true))))

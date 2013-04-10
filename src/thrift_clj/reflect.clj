@@ -60,16 +60,6 @@
         (into [] (.getParameterTypes constr)))
       constructors)))
 
-(defn full-class-symbol
-  "Get Symbol representing Class (including Package)."
-  [^Class class]
-  (symbol (.getName class)))
-
-(defn class-symbol
-  "Get Symbol representing Class (without Package)."
-  [^Class class]
-  (symbol (.getSimpleName class)))
-
 (defn inner-class
   [^Class class ^String name]
   (first (filter #(= (.getSimpleName %) name) (.getDeclaredClasses class))))
