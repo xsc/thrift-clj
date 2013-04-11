@@ -49,64 +49,34 @@ __REPL__
 
 ```clojure
 (require '[thrift-clj.core :as thrift])
-(thrift/import-types org.example.Person)
-```
-
-This will make the type `Person` directly accessible in Clojure.
-
-```clojure
-(def some-person (Person. "Some" "One" 24))
-;; => #user.Person{:firstName Some, :lastName One, :age 24}
-
-(def some-thrift-person (thrift/->thrift some-person))
-;; => #<Person Person(firstName:Some, lastName:One, age:24)>
-
-(class some-thrift-person)
-;; => org.example.Person
-
-(thrift/->clj some-thrift-person)
-;; => #user.Person{:firstName Some, :lastName One, :age 24}
-``` 
-
-Now, let's tackle the service `PersonIndex`. We can implement it using only Clojure:
-
-```clojure
-(thrift/import-services [org.example.PersonIndex :as PersonIndex])
-(thrift/defservice person-index
+(thrift/import
+  (:types org.example.Person)
+  (:services org.example.PersonIndex)
+  (:clients [org.example.PersonIndex :as PIClient]))
+ 
+(thrift/defservice person-index-service
   PersonIndex
-  (store [p]
-    (println "Storing Person:" (:firstName p) (:lastName p))
+  (store [{:keys[firstName lastName age]}]
+    (println "Storing Person:")
+    (println "  First Name:" firstName)
+    (println "  Last Name:" lastName)
+    (println "  Age:" age)
     true))
-```
-
-Get it up and running with:
-
-```clojure
-(def server (thrift/single-threaded-server person-index :socket 7007))
+ 
+(def server (thrift/single-threaded-server person-index-service :socket 7007))
+(def client (thrift/create-client PIClient :socket "localhost" 7007))
 (future (thrift/start-server! server))
-```
-
-Clients can be created similarly:
-
-```clojure
-(thrift/import-clients [org.example.PersonIndex :as PersonIndexClient])
-(def client (thrift/create-client PersonIndexClient :socket "localhost" 7007))
 (thrift/start-client! client)
-```
-
-There are two ways to call a service method: either directly using the Java methods 
-(which requires all parameters to have the right type), or using the functions generated
-in a namespace aliased with whatever was given in the `:as` part of `import-clients`:
-
-```clojure
-(.store client some-person)             ;; => Exception!!
-(.store client some-thrift-person)      ;; => true
-(PersonIndexClient/store client some-person) ;; => true
-```
-
-Cleanup
-
-```clojure
+ 
+(def p (Person. "Yannick" "Scherer" 24))
+(thrift/-&gt;thrift p) ;; => org.example.Person<...>
+(PIClient/store client p)
+;; Storing Person:
+;;   First Name: Yannick
+;;   Last Name: Scherer
+;;   Age: 24
+;; => true
+ 
 (thrift/stop-client! client)
 (thrift/stop-server! server)
 ```
