@@ -69,7 +69,7 @@ __REPL__
 (thrift/start-client! client)
  
 (def p (Person. "Yannick" "Scherer" 24))
-(thrift/-&gt;thrift p) ;; => org.example.Person<...>
+(thrift/->thrift p) ;; => org.example.Person<...>
 (PIClient/store client p)
 ;; Storing Person:
 ;;   First Name: Yannick
