@@ -3,92 +3,96 @@
   thrift-clj.core.thrift-types
   (:use [potemkin.types :only [defrecord+]]
         clojure.tools.logging)
-  (:require [thrift-clj.thrift :as thrift]
-            [thrift-clj.utils :as u]))
+  (:require [thrift-clj.thrift.types :as t]
+            [thrift-clj.utils :as u]
+            [thrift-clj.utils.namespace :as nsp]))
 
-;; ## Types
+;; ## Concept
 ;;
-;; For each Thrift type, we will create a Clojure type of the same name,
-;; with the same fields.
-;; The Thrift type will be extended to implement conversion to Clojure,
-;; whilst the Clojure type will be extended to implement the opposite 
-;; direction.
+;; A Thrift type/Clojure record pair will be created, both being convertable
+;; between these representations.
 ;;
-;; __NOTE:__ We do not have to use `import` because Google Reflections will already
-;; have loaded the class.
+;; Each Thrift type to be imported will get its own internal namespace
+;; (for reusability) but will be injected into the calling namespace
+;; using `import`.
 
-;; ### Protocol
+;; ## Conversion
 
-(defprotocol ClojureType
-  "Protocol for Clojure Values that can be converted to a Thrift equivalent."
-  (clj->thrift* [this]))
+(defprotocol Value
+  "Protocol for Values."
+  (->thrift [this]
+    "Convert Value to Thrift Representation if possible.")
+  (->clj [this]
+    "Convert Value to Clojure Representation if possible."))
 
-(defprotocol ThriftType
-  "Protocol for Thrift Values that can be converted to a Clojure equivalent."
-  (thrift->clj* [this]))
+(defmacro ^:private defbase
+  "Define types that are identical in Thrift and Clojure."
+  [t]
+  `(extend-type ~t 
+     Value
+     (->thrift [v#] v#)
+     (->clj [v#] v#)))
 
-(defn ->thrift
-  "Convert Clojure Type to Thrift Type if possible."
-  [v]
-  (if (satisfies? ClojureType v)
-    (clj->thrift* v)
-    v))
+(defbase java.lang.String)
+(defbase java.lang.Byte)
+(defbase java.lang.Integer)
+(defbase java.lang.Long)
+(defbase java.lang.Double)
+(defbase java.lang.Boolean)
 
-(defn ->clj
-  "Convert Thrift Type to Clojure Type if possible."
-  [v]
-  (if (satisfies? ThriftType v)
-    (thrift->clj* v)
-    v))
+;; ## Form Generation Helpers
 
-;; ### Form Generation
+(defn- extend-thrift-type
+  "Make Thrift Type implement the `Value` protocol."
+  [clojure-type thrift-type mta]
+  (let [v (gensym "v-")
+        find-fn (u/static (u/inner thrift-type "_Fields") "findByThriftId")]
+    `(extend-type ~thrift-type
+       Value
+       (->thrift [~v] ~v)
+       (->clj [~v]
+         (new 
+           ~clojure-type
+           ~@(for [id (map :id mta)]
+               `(->clj (.getFieldValue ~v (~find-fn ~id)))))))))
 
 (defn- generate-clojure-type
   "Generate Record Type that can be converted to its Thrift equivalent."
-  [n cls mta]
-  (let [fields (map (comp symbol :name) mta)]
-    `(defrecord+ ~n [~@fields]
-       ClojureType
-       (clj->thrift* [~'_]
-         (doto (new ~cls)
+  [clojure-type thrift-type mta]
+  (let [fields (map (comp symbol :name) mta)
+        find-fn (u/static (u/inner thrift-type "_Fields") "findByThriftId")]
+    `(defrecord ~clojure-type [~@fields]
+       Value
+       (->clj [v#] v#)
+       (->thrift [~'_]
+         (doto (new ~thrift-type)
            ~@(for [[field sym] (map vector mta fields)]
                (let [v (if-let [w (:wrapper field)]
                          `(~w ~sym)
                          sym)]
-                 `(.setFieldValue
-                    (~(u/static (u/inner cls "_Fields") "findByThriftId") ~(:id field))
-                    (->thrift ~v)))))))))
+                 `(.setFieldValue (~find-fn ~(:id field)) (->thrift ~v)))))))))
 
-(defn- extend-thrift-type
-  "Let the given Thrift Type implement the protocol `ThriftType`, making it
-   convertable to its Clojure equivalent."
-  [n cls mta]
-  (let [this-sym (gensym "this-")]
-    `(extend-type ~cls
-       ThriftType
-       (thrift->clj* [~this-sym]
-         (new ~n 
-              ~@(for [field mta]
-                  `(->clj
-                     (.getFieldValue 
-                       ~this-sym 
-                       (~(u/static (u/inner cls "_Fields") "findByThriftId") ~(:id field))))))))))
+;; ## Import
 
 (defn import-thrift-types
-  "Generate a Clojure Type that corresponds to a given Thrift Type for
-   a map of type-class/type-name pairs."
-  [type-map]
-  (for [[t n] type-map]
-    (let [n (or n (u/class-symbol t))
-          cls (u/full-class-symbol t)]
+  "Generate a Clojure Type that corresponds to a given Thrift Type for a seq
+   of Thrift type classes."
+  [types]
+  (for [t types]
+    (let [clojure-type (u/class-symbol t)
+          thrift-type (u/full-class-symbol t)]
       (try
-        (when-let [mta (thrift/type-metadata t)]
+        (when-let [mta (t/type-metadata t)]
           `(do
-             ~(generate-clojure-type n cls mta)
-             ~(extend-thrift-type n cls mta)
-             true))
+             (nsp/internal-ns
+               ~thrift-type 
+               ~(generate-clojure-type clojure-type thrift-type mta)
+               ~(extend-thrift-type clojure-type thrift-type mta))
+             (nsp/internal-ns-import
+               ~thrift-type
+               ~clojure-type)))
         (catch Exception ex
-          (error ex "when importing type:" cls)
+          (error ex "when importing type:" thrift-type)
           (throw (Exception.
-                   (str "Error when importing `" cls "': " (.getMessage ex))
+                   (str "Error when importing `" thrift-type "': " (.getMessage ex))
                    ex)))))))

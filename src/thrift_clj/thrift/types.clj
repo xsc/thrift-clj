@@ -1,8 +1,8 @@
-(ns ^{ :doc "Wrapping Thrift Data Structures"
+(ns ^{ :doc "Thrift Type Analysis"
        :author "Yannick Scherer" }
-  thrift-clj.thrift
-  (:import(java.lang.reflect Field)
-           (org.apache.thrift.meta_data FieldMetaData FieldValueMetaData)))
+  thrift-clj.thrift.types
+  (:import (java.lang.reflect Field)
+           (org.apache.thrift.meta_data FieldMetaData FieldValueMetaData)
 
 ;; ## Types
 
@@ -64,16 +64,14 @@
 (defn- create-field-metadata-map
   "Create Metadata for Field."
   [k ^FieldMetaData metadata-obj]
-  (let [value-metadata-obj (.-valueMetaData metadata-obj)
+  (let [^FieldValueMetaData value-metadata-obj (.-valueMetaData metadata-obj)
         metadata-map (-> {}
                        (assoc :key k)
                        (assoc :id (.getThriftFieldId k))
                        (assoc :name (.-fieldName metadata-obj))
                        (assoc :require (THRIFT_REQUIREMENT_TYPES (.-requirementType metadata-obj)))
                        (assoc :type (THRIFT_TYPES (.-type value-metadata-obj))))]
-    (extend-field-metadata-map
-      metadata-map 
-      value-metadata-obj)))
+    (extend-field-metadata-map metadata-map value-metadata-obj)))
 
 (def type-metadata
   "Get Seq of Type Field Metadata Maps."

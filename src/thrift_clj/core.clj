@@ -11,6 +11,13 @@
             [thrift-clj.client :as cln]
             [thrift-clj.reflect :as reflect]))
 
+;; ## Concept
+;;
+;; __thrift-clj__ uses Clojure's Java interoperability to access Classes generated
+;; by Thrift. It will wrap each class (when imported using thrift-clj's macros) in
+;; a separate namespace, aliasing it as desired, importing types, creating wrapper
+;; functions, etc... 
+
 ;; ## Imported
 
 (import-macro s/defservice)

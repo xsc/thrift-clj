@@ -1,10 +1,9 @@
 (ns ^{ :doc "Using Reflection to get Thrift Entities."
        :author "Yannick Scherer" }
-  thrift-clj.reflect
+  thrift-clj.utils.reflect
   (:import (org.reflections Reflections ReflectionUtils)
            (org.reflections.scanners Scanner SubTypesScanner TypeElementsScanner)
-           (org.reflections.util ClasspathHelper ConfigurationBuilder FilterBuilder)
-           (org.apache.thrift TBase TProcessor)))
+           (org.reflections.util ClasspathHelper ConfigurationBuilder FilterBuilder)))
 
 ;; ## Google Reflection Helpers
 
@@ -64,40 +63,10 @@
   [^Class class ^String name]
   (first (filter #(= (.getSimpleName %) name) (.getDeclaredClasses class))))
 
-;; ## Thrift-specific Functions
+;; ## Scanning Packages
 
-(defn thrift-types
-  "Get set of Classes implementing `org.apache.thrift.TBase`, i.e. Thrift-
-   generated Types."
-  [packages]
+(defn find-subtypes
+  "Find types that implement or extend the given base type."
+  [base-type packages]
   (let [reflect (create-reflection packages)]
-    (filter
-      #(nil? (.getDeclaringClass %))
-      (.getSubTypesOf reflect TBase))))
-
-(defn thrift-processors
-  "Get set of Classes implementing `org.apache.thrift.TProcessor`, i.e.
-   Thrift-generated Processors."
-  [packages]
-  (let [reflect (create-reflection packages)]
-    (.getSubTypesOf reflect TProcessor)))
-
-(defn thrift-services
-  "Get set of classes containing an `org.apache.thrift.TProcessor`, i.e.
-   Thrift-generated Services."
-  [packages]
-  (let [processors (thrift-processors packages)
-        services (map #(.getDeclaringClass %) processors)]
-    (set (filter (complement nil?) services))))
-
-(defn thrift-service-methods
-  "Get seq of methods defined in a service."
-  [service]
-  (when-let [iface (inner-class service "Iface")]
-    (map 
-      (fn [m]
-        (-> {}
-          (assoc :name (.getName m))
-          (assoc :params (into [] (.getParameterTypes m)))
-          (assoc :returns (.getReturnType m))))
-      (.getMethods iface))))
+    (.getSubTypesOf reflect base-type)))
