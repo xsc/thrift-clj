@@ -1,29 +1,23 @@
 (ns ^{ :doc "Clojure Client Wrapper"
        :author "Yannick Scherer" }
   thrift-clj.gen.clients
-  (:require [thrift-clj.thrift.services :as s]
+  (:require [thrift-clj.gen.iface :as ifc]
             [thrift-clj.gen.types :as t]
-            [thrift-clj.utils.symbols :as u]))
+            [thrift-clj.thrift.services :as s]
+            [thrift-clj.utils.symbols :as u]
+            [thrift-clj.utils.namespaces :as nsp]))
+
+;; ## Clients
+;;
+;; Clients need an alias that will be used as a var containing a reference to
+;; the client class. Also, the service interface will be imported using that alias.
 
 ;; ## Protocol
 
 (defprotocol Client
   "Protocol for Clients."
-  (start-client! [this])
-  (stop-client! [this]))
-
-(defmacro with-client
-  "Start Client, execute Body, stop Client."
-  [client & body]
-  `(let [c# ~client]
-     (try
-       (do
-         (start-client! c#)
-         ~@body)
-       (catch Exception e#
-         (throw e#))
-       (finally
-         (stop-client! c#)))))
+  (connect! [this])
+  (disconnect! [this]))
 
 ;; ## Multimethods
 
@@ -32,61 +26,62 @@
   (fn [cls client transport] cls))
 
 (defmulti new-client
+  "Create new Instance of a Client of the given Class, using the
+   given Protocol."
   (fn [cls protocol] cls))
 
-;; ## Form Generation
+;; ## Form Generation Helpers
 
-(defn generate-thrift-client
-  "Make a Client accessible via `create-client`."
-  [n cls mth]
+(defn- generate-client-type
+  "Generate Type that delegates to a contained Client, implementing connection/disconnection
+   and `java.io.Closeable` for use with `with-open`."
+  [client-sym cls mth]
   (let [iface (u/inner cls "Iface")
-        cln (u/inner cls "Client")
         param-syms (repeatedly gensym)
-        client (gensym "client-")
-        wrap-sym (gensym (str n "Client"))
-        current-ns (ns-name *ns*)
-        client-ns (symbol (str "namespace-" n "Client"))]
-    `(do
-       (ns ~client-ns)
-
-       (deftype ~wrap-sym [~client transport#]
-         Client
-         (start-client! [~'_]
-           (.open transport#))
-         (stop-client! [~'_]
-           (.close transport#))
-
-         ~iface
-         ~@(for [{:keys[name params]} mth]
-             (let [params (take (count params) param-syms)]
-               `(~(symbol name) [this# ~@params]
-                   (. ~client ~(symbol name) ~@params)))))
-
+        c (gensym)]
+    `(deftype ~client-sym [~c transport#]
+       Client
+       (connect! [~'_] (.open transport#))
+       (disconnect! [~'_] (.close transport#))
+       java.io.Closeable
+       (close [this#] (disconnect! this#))
+       ~iface
        ~@(for [{:keys[name params]} mth]
            (let [params (take (count params) param-syms)]
-             `(defn ~(symbol name)
-                [client# ~@params]
-                (->clj
-                  (. client# ~(symbol name) 
-                     ~@(map #(list `->thrift %) params))))))
-       
+             `(~(symbol name) [~'_ ~@params]
+                 (. ~c ~(symbol name) ~@params)))))))
+
+(defn- generate-client-defmethods
+  "Generate \"Hooks\" to make Client accessible to Clojure."
+  [client-sym cls]
+  (let [cln (u/inner cls "Client")]
+    `(do
        (defmethod wrap-client ~cln
          [~'_ client# transport#]
-         (new ~wrap-sym client# transport#))
-
+         (new ~client-sym client# transport#))
        (defmethod new-client ~cln
          [~'_ proto#]
-         (new ~cln proto#))
+         (new ~cln proto#)))))
 
-       (in-ns '~current-ns)
-       (require '[~client-ns :as ~n])
-       (def ~n ~cln))))
+;; ## Import
 
-(defn import-thrift-clients
+(nsp/def-reload-indicator reload-client?)
+
+(defn generate-thrift-client-imports
   "Import Thrift Clients for map of service-class/client-name pairs."
   [service-map]
-  (for [[s n] service-map]
-    (let [n (or n (u/class-symbol s))
-          cls (u/full-class-symbol s)
-          mth (s/thrift-service-methods s)]
-      (generate-thrift-client n cls mth))))
+  (for [[service-class client-alias] service-map]
+    (let [client-alias (or client-alias (u/class-symbol service-class))
+          mth (s/thrift-service-methods service-class)
+          cls (u/full-class-symbol service-class)
+          cln (u/inner cls "Client")
+          client-sym (gensym)]
+      `(do
+         ~@(when (reload-client? cln)
+             [`(nsp/internal-ns-remove '~cln)])
+         (nsp/internal-ns 
+           ~cln
+           ~(generate-client-type client-sym cls mth)
+           ~(generate-client-defmethods client-sym cls))
+         ~(ifc/generate-thrift-iface-import service-class client-alias)
+         (def ~client-alias ~cln)))))

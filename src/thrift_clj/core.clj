@@ -23,9 +23,8 @@
 (import-macro s/service)
 (import-macro s/defservice)
 
-(import-macro c/with-client)
-(import-fn c/start-client!)
-(import-fn c/stop-client!)
+(import-fn c/connect!)
+(import-fn c/disconnect!)
 
 (import-fn t/->thrift)
 (import-fn t/->clj)
@@ -124,7 +123,7 @@
   [& services]
   (let [service-map (generate-class-map services)]
     `(do
-       ~@(c/import-thrift-clients service-map)
+       ~@(c/generate-thrift-client-imports service-map)
        true)))
 
 ;; ### Everyhting
