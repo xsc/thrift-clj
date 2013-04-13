@@ -20,6 +20,11 @@ __Leiningen__
 __Note__: Tested with the Thrift 0.9.0 compiler. Since this depends massively on the generated code, make sure to use
 that version (or any other one that was tested with this library).
 
+__Automatic Thrift Compilation__
+
+I recommend [lein-thriftc](https://github.com/xsc/lein-thriftc) for automatic compilation of Thrift IDL files to Java
+class files. It is maintained by me and should thus be compatible with thrift-clj.
+
 ## Example
 
 __test.thrift__
@@ -98,7 +103,6 @@ __example.clj__
 - Have a look at Lists/Sets/Enums/...
 - wrappers around Protocols (to encode/decode values directly to/from byte arrays)
 - more protocols/servers/clients
-- a Leiningen Plugin that operates with thrift-clj in mind
 - tests & documentationn
 - ...
 
@@ -106,7 +110,6 @@ __example.clj__
 
 - [Apache Thrift](https://github.com/apache/thrift)
 - [Plaid Penguin](https://github.com/ithayer/plaid-penguin)
-- [lein-thrift](https://github.com/kurtharriger/lein-thrift)
 
 ## License
 
