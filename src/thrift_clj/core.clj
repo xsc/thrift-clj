@@ -71,9 +71,11 @@
 (defmacro import-types
   "Import the given Thrift Types making them accessible as Clojure Types of the same name."
   [& types]
-  `(do
-     ~@(t/generate-thrift-type-imports (map (comp load-class name) types))
-     true))
+  (let [type-map (generate-class-map types)
+        types (keys type-map)] ;; no aliases allowed
+    `(do
+       ~@(t/generate-thrift-type-imports types)
+       true)))
 
 (defmacro import-all-types
   "Import all types that reside in a package with one of the given prefixes."
