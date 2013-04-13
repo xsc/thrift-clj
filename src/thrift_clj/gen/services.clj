@@ -74,9 +74,9 @@
                    (debug ~(str "[" method-name "]") "Entering Method ...")
                    (if-let [h# (get ~handler ~(keyword name))]
                      (let [r# (t/->thrift (h# ~@(map #(list `t/->clj %) params)))]
-                       (debug  ~(str "[" method-name "]") "Done.")
+                       (debug  ~(str "[" method-name "] Done."))
                        r#)
-                     (throw (Exception. ~(str "[Thrift] Service Method not implemented: " method-name)))))))))))
+                     (throw (Exception. ~(str "[" method-name "] Service Method not implemented.")))))))))))
 
 (defn- generate-service-defmethods
   "Generate \"Hooks\" to be called by `service.`"

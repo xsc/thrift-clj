@@ -13,7 +13,7 @@
    (see: `org.apache.thrift.protocol.TType`)"
   { 0x0 :stop   0x1 :void   0x2 :bool 
     0x3 :byte   0x4 :double 0x6 :i16
-    0x7 :i32    0x8 :i64    0xb :string
+    0x8 :i32    0xa :i64    0xb :string
     0xc :struct 0xd :map    0xe :set
     0xf :list })
 
@@ -37,7 +37,7 @@
 
 (defmethod extend-field-metadata-map :bool
   [m _]
-  (assoc m :wrapper `byte))
+  (assoc m :wrapper `boolean))
 
 (defmethod extend-field-metadata-map :byte
   [m _]
