@@ -1,5 +1,7 @@
 # thrift-clj
 
+[![Build Status](https://travis-ci.org/xsc/thrift-clj.png?branch=master)](https://travis-ci.org/xsc/thrift-clj)
+
 Using Thrift from Clojure as if it was Clojure.
 
 __Note__: This is an alpha release. The API might change at any point (but, at least for the most prominent parts, 
