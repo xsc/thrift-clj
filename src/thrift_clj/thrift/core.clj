@@ -22,7 +22,7 @@
 
 (defn thrift-services
   "Get set of classes containing an `org.apache.thrift.TProcessor`, i.e.
-  Thrift-generated Services."
+   Thrift-generated Services."
   [packages]
   (let [processors (thrift-processors packages)
         services (map #(.getDeclaringClass %) processors)]

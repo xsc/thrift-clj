@@ -126,6 +126,17 @@
        ~@(c/generate-thrift-client-imports service-map)
        true)))
 
+(defmacro import-all-clients
+  "Import all services that reside in a package with one of the given prefixes."
+  [& packages]
+  (let [services (reduce
+                   #(assoc %1 %2 nil)
+                   {}
+                   (thr/thrift-services (map name packages)))]
+    `(do
+       ~@(c/generate-thrift-client-imports services)
+       true)))
+
 ;; ### Everyhting
 
 (defmacro import-all
@@ -133,7 +144,8 @@
   [& packages]
   `(do
      (import-all-types ~@packages)
-     (import-all-services ~@packages)))
+     (import-all-services ~@packages)
+     (import-all-clients ~@packages)))
 
 ;; ### Main Macro
 
