@@ -12,7 +12,7 @@ thrift-clj is available via [Clojars](http://clojars.org/thrift-clj).
 __Leiningen__
 
 ```clojure
-[thrift-clj "0.1.0-alpha1"]
+[thrift-clj "0.1.0-alpha2"]
 ```
 
 __Note__: Tested with the Thrift 0.9.0 compiler. Since this depends massively on the generated code, make sure to use
