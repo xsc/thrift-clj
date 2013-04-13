@@ -2,7 +2,7 @@
        :author "Yannick Scherer" }
   thrift-clj.thrift.types
   (:import (java.lang.reflect Field)
-           (org.apache.thrift.meta_data FieldMetaData FieldValueMetaData)
+           (org.apache.thrift.meta_data FieldMetaData FieldValueMetaData)))
 
 ;; ## Types
 

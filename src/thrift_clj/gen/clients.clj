@@ -1,10 +1,9 @@
 (ns ^{ :doc "Clojure Client Wrapper"
        :author "Yannick Scherer" }
-  thrift-clj.core.thrift-clients
-  (:require [thrift-clj.reflect :as reflect]
-            [thrift-clj.thrift :as thrift]
-            [thrift-clj.utils :as u])
-  (:use thrift-clj.core.thrift-types))
+  thrift-clj.gen.clients
+  (:require [thrift-clj.thrift.services :as s]
+            [thrift-clj.gen.types :as t]
+            [thrift-clj.utils.symbols :as u]))
 
 ;; ## Protocol
 
@@ -89,5 +88,5 @@
   (for [[s n] service-map]
     (let [n (or n (u/class-symbol s))
           cls (u/full-class-symbol s)
-          mth (reflect/thrift-service-methods s)]
+          mth (s/thrift-service-methods s)]
       (generate-thrift-client n cls mth))))

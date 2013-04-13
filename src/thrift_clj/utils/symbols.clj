@@ -1,6 +1,6 @@
-(ns ^{ :doc "Utility Functions"
+(ns ^{ :doc "Symbol Utility Functions"
        :author "Yannick Scherer" }
-  thrift-clj.utils)
+  thrift-clj.utils.symbols)
 
 (defn inner 
   "Create symbol representing an inner class."

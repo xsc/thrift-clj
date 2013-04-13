@@ -4,12 +4,12 @@
   (:refer-clojure :exclude [import])
   (:use [potemkin :only [import-macro import-fn]]
         clojure.tools.logging)
-  (:require [thrift-clj.core.thrift-types :as t]
-            [thrift-clj.core.thrift-services :as s]
-            [thrift-clj.core.thrift-clients :as c]
+  (:require [thrift-clj.gen.types :as t]
+            [thrift-clj.gen.services :as s]
+            [thrift-clj.gen.clients :as c]
             [thrift-clj.server :as srv]
             [thrift-clj.client :as cln]
-            [thrift-clj.reflect :as reflect]))
+            [thrift-clj.thrift.core :as thr]))
 
 ;; ## Concept
 ;;
@@ -20,6 +20,7 @@
 
 ;; ## Imported
 
+(import-macro s/service)
 (import-macro s/defservice)
 
 (import-macro c/with-client)
@@ -69,28 +70,18 @@
 ;; ### Types
 
 (defmacro import-types
-  "Import the given Thrift Types making them accessible as Clojure Types.
-   There are three types of specification formats:
-   - `package.Class`: load exactly this type, using the name `Class`
-   - `[package Class1 Class2 ...]`: load the given types from the package, using class names
-     as type names
-   - `[package.Class :as N]`: load the given type, using the name `N`
-  "
+  "Import the given Thrift Types making them accessible as Clojure Types of the same name."
   [& types]
-  (let [type-map (generate-class-map types)]
-    `(do
-       ~@(t/import-thrift-types type-map)
-       true)))
+  `(do
+     ~@(t/generate-thrift-type-imports (map (comp load-class name) types))
+     true))
 
 (defmacro import-all-types
   "Import all types that reside in a package with one of the given prefixes."
   [& packages]
-  (let [types (reduce
-               #(assoc %1 %2 nil)
-                {}
-                (reflect/thrift-types (map name packages)))]
+  (let [types (thr/thrift-types (map name packages))]
     `(do
-       ~@(t/import-thrift-types types)
+       ~@(t/generate-thrift-type-imports types)
        true)))
 
 ;; ### Services
@@ -106,7 +97,7 @@
   [& services]
   (let [service-map (generate-class-map services)]
     `(do
-       ~@(s/import-thrift-services service-map)
+       ~@(s/generate-thrift-service-imports service-map)
        true)))
 
 (defmacro import-all-services
@@ -115,9 +106,9 @@
   (let [services (reduce
                    #(assoc %1 %2 nil)
                    {}
-                   (reflect/thrift-services (map name packages)))]
+                   (thr/thrift-services (map name packages)))]
     `(do
-       ~@(s/import-thrift-services services)
+       ~@(s/generate-thrift-service-imports services)
        true)))
 
 ;; ### Clients

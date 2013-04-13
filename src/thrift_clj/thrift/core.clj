@@ -20,14 +20,10 @@
   [packages]
   (reflect/find-subtypes TProcessor))
 
-(defn thrift-service-methods
-  "Get seq of methods defined in a service."
-  [service]
-  (when-let [iface (reflect/inner-class service "Iface")]
-    (map 
-      (fn [m]
-        (-> {}
-          (assoc :name (.getName m))
-          (assoc :params (into [] (.getParameterTypes m)))
-          (assoc :returns (.getReturnType m))))
-      (.getMethods iface))))
+(defn thrift-services
+  "Get set of classes containing an `org.apache.thrift.TProcessor`, i.e.
+  Thrift-generated Services."
+  [packages]
+  (let [processors (thrift-processors packages)
+        services (map #(.getDeclaringClass %) processors)]
+    (set (filter (complement nil?) services))))

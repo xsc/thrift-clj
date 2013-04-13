@@ -1,8 +1,7 @@
 (ns ^{ :doc "Wrappers for Client Creation."
        :author "Yannick Scherer" }
   thrift-clj.client
-  (:require [thrift-clj.core.thrift-clients :as c]
-            [thrift-clj.utils :as u])
+  (:require [thrift-clj.gen.clients :as c])
   (:import (org.apache.thrift.transport
              TTransport
              TSocket)

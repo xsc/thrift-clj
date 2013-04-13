@@ -1,13 +1,12 @@
 (ns ^{ :doc "Thrift Type Import"
        :author "Yannick Scherer" }
-  thrift-clj.core.thrift-types
-  (:use [potemkin.types :only [defrecord+]]
-        clojure.tools.logging)
+  thrift-clj.gen.types
+  (:use clojure.tools.logging)
   (:require [thrift-clj.thrift.types :as t]
-            [thrift-clj.utils :as u]
-            [thrift-clj.utils.namespace :as nsp]))
+            [thrift-clj.utils.symbols :as u]
+            [thrift-clj.utils.namespaces :as nsp]))
 
-;; ## Concept
+;; ## Types
 ;;
 ;; A Thrift type/Clojure record pair will be created, both being convertable
 ;; between these representations.
@@ -33,6 +32,7 @@
      (->thrift [v#] v#)
      (->clj [v#] v#)))
 
+(defbase nil)
 (defbase java.lang.String)
 (defbase java.lang.Byte)
 (defbase java.lang.Integer)
@@ -74,25 +74,31 @@
 
 ;; ## Import
 
-(defn import-thrift-types
+(nsp/def-reload-indicator reload-types?)
+
+(defn generate-thrift-type-imports
   "Generate a Clojure Type that corresponds to a given Thrift Type for a seq
    of Thrift type classes."
   [types]
-  (for [t types]
-    (let [clojure-type (u/class-symbol t)
-          thrift-type (u/full-class-symbol t)]
-      (try
-        (when-let [mta (t/type-metadata t)]
-          `(do
-             (nsp/internal-ns
-               ~thrift-type 
-               ~(generate-clojure-type clojure-type thrift-type mta)
-               ~(extend-thrift-type clojure-type thrift-type mta))
-             (nsp/internal-ns-import
-               ~thrift-type
-               ~clojure-type)))
-        (catch Exception ex
-          (error ex "when importing type:" thrift-type)
-          (throw (Exception.
-                   (str "Error when importing `" thrift-type "': " (.getMessage ex))
-                   ex)))))))
+  (let [current-ns (ns-name *ns*)]
+    (for [t types]
+      (let [clojure-type (u/class-symbol t)
+            thrift-type (u/full-class-symbol t)]
+        (try
+          (when-let [mta (t/type-metadata t)]
+            `(do
+               ~@(when (reload-types? thrift-type)
+                   [`(ns-unmap '~current-ns '~clojure-type)
+                    `(nsp/internal-ns-remove '~thrift-type)])
+               (nsp/internal-ns
+                 ~thrift-type 
+                 ~(generate-clojure-type clojure-type thrift-type mta)
+                 ~(extend-thrift-type clojure-type thrift-type mta))
+               (nsp/internal-ns-import
+                 ~thrift-type
+                 ~clojure-type)))
+          (catch Exception ex
+            (error ex "when importing type:" thrift-type)
+            (throw (Exception.
+                     (str "Error when importing `" thrift-type "': " (.getMessage ex))
+                     ex))))))))

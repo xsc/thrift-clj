@@ -1,6 +1,27 @@
 (ns ^{ :doc "Namespace Building Utilities"
        :author "Yannick Scherer" }
-  thrift-clj.utils.namespace)
+  thrift-clj.utils.namespaces)
+
+;; ## Reload Detection
+
+(defonce ^:private indicator-once (gensym))
+
+(defmacro def-reload-indicator
+  "Creates a function that takes an ID (e.g. symbol, keyword) as parameter and decides
+   whether the ID has to be reloaded by observing whether the ID has been loaded since
+   the namesapce the indicator lies in has been reloaded."
+  [id]
+  `(let [indicator# (gensym)]
+     (defonce ~(vary-meta indicator-once assoc :private true) (atom {}))
+     (defn ~(vary-meta id assoc :private true)  
+       [v#]
+       (if-let [i# (get @~indicator-once v#)]
+         (when-not (= i# indicator#)
+           (swap! ~indicator-once assoc v# indicator#)
+           true)
+         (do
+           (swap! ~indicator-once assoc v# indicator#)
+           false)))))
 
 ;; ## Namespace Container
 
@@ -49,7 +70,7 @@
   (when-not ns-alias
     (throw (Exception. "`internal-ns-require` needs an alias!")))
   (if-let [ns-data (@internal-namespaces ns-key)]
-    (require [(:ns-name ns-data) :as ~ns-alias])
+    (require [(:ns-name ns-data) :as ns-alias])
     (throw (Exception. (str "No such internal Namespace: " ns-key)))))
 
 (defmacro internal-ns-import
@@ -67,7 +88,3 @@
                        `(import '~cn))))
                  (throw (Exception. (str "No such Type in internal Namespace <" n ">: " t)))))))
       (throw (Exception. (str "No such internal Namespace: " ns-key))))))
-
-
-
-
