@@ -25,8 +25,6 @@
 ;; Prepare Client and Data
 (def client (thrift/create-client PI :socket "localhost" 7007))
 (def p (Person. 0 (Name. "Some" "One") 99))
-;;(def tp (thrift/->thrift p)))
-;;(thrift/->clj tp)
 
 ;; Go!
 (defn -run
