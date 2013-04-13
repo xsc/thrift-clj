@@ -13,5 +13,6 @@
              :example {:thrift-java-path "example/java"
                        :thrift-source-path "example/thrift"
                        :java-source-paths ["example/java"]
+                       :source-paths ["example/clj"]
                        :plugins [[lein-thrift "0.1.0"]]}}
   :aliases {"example-repl" ["with-profile" "dev,example" "do" "thrift" "," "repl"]})

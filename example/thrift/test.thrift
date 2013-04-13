@@ -7,5 +7,6 @@ struct Person {
 }
 
 service PersonIndex {
-    bool store(1:Person p)
+    bool store(1:Person p),
+    Person getPerson(1:string lastName)
 }

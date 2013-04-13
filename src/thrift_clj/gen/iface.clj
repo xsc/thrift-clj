@@ -13,6 +13,8 @@
 ;; for each interface method, transparently converting between 
 ;; Clojure and Thrift representations.
 
+(nsp/def-reload-indicator reload-iface?)
+
 (defn generate-thrift-iface-import
   [service-class iface-alias]
   (let [cls (u/full-class-symbol service-class)
@@ -20,6 +22,8 @@
         mth (s/thrift-service-methods service-class)
         param-syms (repeatedly gensym)]
     `(do 
+       ~@(when (reload-iface? iface-cls)
+           [`(nsp/internal-ns-remove '~iface-cls)])
        (nsp/internal-ns 
          ~iface-cls
          ~@(for [{:keys[name params]} mth]

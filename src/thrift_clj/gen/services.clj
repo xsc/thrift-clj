@@ -28,17 +28,31 @@
 (defmacro service
   "Implement the given, previously imported Service."
   [service-cls & implementation]
-  (let [m (reduce
+  (let [[options implementation] (loop [i implementation
+                                        o []]
+                                   (cond (not (seq i)) [o i]
+                                         (keyword? (first i)) (recur (drop 2 i) (concat o (take 2 i)))
+                                         :else [o i]))
+        options (apply hash-map options)
+        m (reduce
             (fn [m [id bindings & method-impl]]
               (assoc m (keyword id) 
                      `(fn [~@bindings] ~@method-impl)))
             {} implementation)]
-    `(map->iface ~service-cls ~m)))
+    `(let [~@(:let options)]
+       (map->iface ~service-cls ~m))))
 
 (defmacro defservice
-  "Create var containing the given Service implementation."
+  "Define var containing the service."
   [id service-cls & implementation]
   `(def ~id (service ~service-cls ~@implementation)))
+
+(defmacro defservice-fn
+  "Create function for service generation."
+  [id service-cls bindings & implementation]
+  `(defn ~id 
+     [~@bindings]
+     (service ~service-cls ~@implementation)))
 
 ;; ## Form Generation Helpers
 
@@ -77,27 +91,28 @@
          [this#]
          (new ~proc this#)))))
 
-(defn- generate-thrift-service
-  "Generate Clojure-accessible Thrift Service that can be implemented using `service` or
-   `defservice`."
-  [service-class service-alias]
-  (let [cls (u/full-class-symbol service-class) 
-        mth (s/thrift-service-methods service-class)
-        proxy-sym (gensym)]
-    `(do
-       (nsp/internal-ns
-         ~cls
-         ~(generate-proxy-fn proxy-sym cls mth)
-         ~(generate-service-defmethods proxy-sym cls))
-       ~(ifc/generate-thrift-iface-import service-class service-alias)
-       (def ~service-alias ~cls)
-       true)))
-
 ;; ## Import
+
+(nsp/def-reload-indicator reload-service?)
 
 (defn generate-thrift-service-imports
   "Import Thrift services given as a map of service-class/service-name pairs."
   [service-map]
   (for [[service-class service-alias] service-map]
-    (let [service-alias (or service-alias (u/class-symbol service-class))]
-      (generate-thrift-service service-class service-alias))))
+    (let [cls (u/full-class-symbol service-class)]
+      (try
+        (let [service-alias (or service-alias (u/class-symbol service-class))
+              mth (s/thrift-service-methods service-class)
+              proxy-sym (gensym)]
+          `(do
+             ~@(when (reload-service? cls)
+                 [`(nsp/internal-ns-remove '~cls)])
+             (nsp/internal-ns
+               ~cls
+               ~(generate-proxy-fn proxy-sym cls mth)
+               ~(generate-service-defmethods proxy-sym cls))
+             ~(ifc/generate-thrift-iface-import service-class service-alias)
+             (def ~service-alias ~cls)
+             true))
+        (catch Exception ex 
+          (throw (Exception. (str "Failed to import Service: " cls) ex)))))))

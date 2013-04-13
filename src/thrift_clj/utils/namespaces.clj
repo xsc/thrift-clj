@@ -36,7 +36,7 @@
   [ns-key]
   (when-let [ns-data (@internal-namespaces ns-key)]
     (swap! internal-namespaces dissoc ns-key)
-    (remove-ns (:ns-name ns-data))))
+    #_(remove-ns (:ns-name ns-data))))
 
 (defn internal-ns-add
   "Add internal Namespace."
@@ -51,7 +51,7 @@
   [ns-key & body]
   (when-not (@internal-namespaces ns-key)
     (let [current-ns (ns-name *ns*)
-          unique-name (gensym "ns")]
+          unique-name (symbol (str "ns" (.hashCode (str ns-key))))]
       `(do
          (ns ~unique-name)
          ~@body
@@ -70,8 +70,14 @@
   (when-not ns-alias
     (throw (Exception. "`internal-ns-require` needs an alias!")))
   (if-let [ns-data (@internal-namespaces ns-key)]
-    (require [(:ns-name ns-data) :as ns-alias])
-    (throw (Exception. (str "No such internal Namespace: " ns-key)))))
+    (let [ns-id (:ns-name ns-data)]
+      (try 
+        (refer ns-id)
+        (alias ns-alias ns-id)
+        (catch Exception ex
+          (throw (Exception. (str "Failed to require internal Namespace for: " ns-key " (" ns-id ")\n"
+                                  (.getMessage ex)))))))
+    (throw (Exception. (str "No internal Namespace for: " ns-key)))))
 
 (defmacro internal-ns-import
   "Import Classes from the given internal Namespace."

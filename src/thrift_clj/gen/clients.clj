@@ -41,8 +41,12 @@
         c (gensym)]
     `(deftype ~client-sym [~c transport#]
        Client
-       (connect! [~'_] (.open transport#))
-       (disconnect! [~'_] (.close transport#))
+       (connect! [this#] 
+         (.open transport#) 
+         this#)
+       (disconnect! [this#] 
+         (.close transport#)
+         this#)
        java.io.Closeable
        (close [this#] (disconnect! this#))
        ~iface
@@ -71,17 +75,21 @@
   "Import Thrift Clients for map of service-class/client-name pairs."
   [service-map]
   (for [[service-class client-alias] service-map]
-    (let [client-alias (or client-alias (u/class-symbol service-class))
-          mth (s/thrift-service-methods service-class)
-          cls (u/full-class-symbol service-class)
-          cln (u/inner cls "Client")
-          client-sym (gensym)]
-      `(do
-         ~@(when (reload-client? cln)
-             [`(nsp/internal-ns-remove '~cln)])
-         (nsp/internal-ns 
-           ~cln
-           ~(generate-client-type client-sym cls mth)
-           ~(generate-client-defmethods client-sym cls))
-         ~(ifc/generate-thrift-iface-import service-class client-alias)
-         (def ~client-alias ~cln)))))
+    (let [cls (u/full-class-symbol service-class)
+          cln (u/inner cls "Client")]
+      (try
+        (let [client-alias (or client-alias (u/class-symbol service-class))
+              mth (s/thrift-service-methods service-class)
+              client-sym (gensym)]
+          `(do
+             ~@(when (reload-client? cln)
+                 [`(nsp/internal-ns-remove '~cln)])
+             (nsp/internal-ns 
+               ~cln
+               ~(generate-client-type client-sym cls mth)
+               ~(generate-client-defmethods client-sym cls))
+             ~(ifc/generate-thrift-iface-import service-class client-alias)
+             (def ~client-alias ~cln)
+             true))
+        (catch Exception ex
+          (throw (Exception. (str "Failed to import Client: " cln) ex)))))))
