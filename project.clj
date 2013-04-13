@@ -10,7 +10,9 @@
                  [javax.servlet/servlet-api "2.5"]
                  [org.slf4j/slf4j-log4j12 "1.5.2"]
                  [potemkin "0.2.1"]]
-  :profiles {:example {:plugins [[lein-thriftc "0.1.0"]]
+  :profiles {:dev {:dependencies [[midje "1.5.1"]]
+                   :plugins [[lein-midje "3.0.0"]]}
+             :example {:plugins [[lein-thriftc "0.1.0"]]
                        :prep-tasks ["thriftc"]
                        :thriftc { :source-paths ["example/thrift"] }
                        :source-paths ["example/clj"]}}
