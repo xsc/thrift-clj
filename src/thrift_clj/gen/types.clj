@@ -19,18 +19,30 @@
 
 (defprotocol Value
   "Protocol for Values."
-  (->thrift [this]
+  (->thrift* [this]
     "Convert Value to Thrift Representation if possible.")
-  (->clj [this]
+  (->clj* [this]
     "Convert Value to Clojure Representation if possible."))
+
+(defn ->thrift
+  [v]
+  (if (satisfies? Value v)
+    (->thrift* v)
+    v))
+
+(defn ->clj
+  [v]
+  (if (satisfies? Value v)
+    (->clj* v)
+    v))
 
 (defmacro ^:private defbase
   "Define types that are identical in Thrift and Clojure."
   [t]
   `(extend-type ~t 
      Value
-     (->thrift [v#] v#)
-     (->clj [v#] v#)))
+     (->thrift* [v#] v#)
+     (->clj* [v#] v#)))
 
 (defbase nil)
 (defbase java.lang.String)
@@ -49,8 +61,8 @@
         find-fn (u/static (u/inner thrift-type "_Fields") "findByThriftId")]
     `(extend-type ~thrift-type
        Value
-       (->thrift [~v] ~v)
-       (->clj [~v]
+       (->thrift* [~v] ~v)
+       (->clj* [~v]
          (new 
            ~clojure-type
            ~@(for [id (map :id mta)]
@@ -63,8 +75,8 @@
         find-fn (u/static (u/inner thrift-type "_Fields") "findByThriftId")]
     `(defrecord ~clojure-type [~@fields]
        Value
-       (->clj [v#] v#)
-       (->thrift [~'_]
+       (->clj* [v#] v#)
+       (->thrift* [~'_]
          (doto (new ~thrift-type)
            ~@(for [[field sym] (map vector mta fields)]
                (let [v (if-let [w (:wrapper field)]
