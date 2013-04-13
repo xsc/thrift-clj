@@ -8,9 +8,9 @@
                  [org.reflections/reflections "0.9.9-RC1"]
                  [org.apache.thrift/libthrift "0.9.0"]
                  [javax.servlet/servlet-api "2.5"]
+                 [org.slf4j/slf4j-log4j12 "1.5.2"]
                  [potemkin "0.2.1"]]
-  :profiles {:dev {:dependencies [[org.slf4j/slf4j-log4j12 "1.5.2"]]}
-             :example {:plugins [[lein-thriftc "0.1.0"]]
+  :profiles {:example {:plugins [[lein-thriftc "0.1.0"]]
                        :prep-tasks ["thriftc"]
                        :thriftc { :source-paths ["example/thrift"] }
                        :source-paths ["example/clj"]}}
