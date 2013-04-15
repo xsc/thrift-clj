@@ -20,9 +20,11 @@ struct Location {
 
 struct Person {
   1: Name name,
-  2: Location location
+  2: optional Location location
 }
 
 struct People {
-  1: set<Person> people
+  1: optional set<Person> peopleSet,
+  2: optional list<Person> peopleList,
+  3: optional map<i32,Person> peopleMap
 }
