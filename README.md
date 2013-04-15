@@ -27,7 +27,12 @@ class files. It is maintained by me and should thus be compatible with thrift-cl
 
 ## Example
 
-__test.thrift__
+A working example demonstrating Service and Client implementation should always be available as 
+[thrift-clj-example](https://github.com/xsc/thrift-clj-example). A small peek follows.
+
+### Accessing Types
+
+__Thrift__
 
 ```thrift
 namespace java org.example
@@ -37,65 +42,78 @@ struct Person {
   2: string lastName,
   3: byte age
 }
+```
+
+Compile to Java using Thrift and add to Leiningen's classpath. (see `:java-source-paths`)
+
+__Clojure__
+
+```clojure
+(require '[thrift-clj.core :as thrift])
+(thrift/import 
+  (:types [org.example Person]))
+  
+(def clj-p (Person. "Some" "One" 99)) ;; => #ns_1071852349.Person{:firstName "Some", :lastName "One", :age 99}
+(def thr-p (thrift/->thrift clj-p))   ;; => #<Person Person(firstName:Some, lastName:One, age:99)>
+
+(class clj-p)                         ;; => ns_1071852349.Person
+(class thr-p)                         ;; => org.example.Person
+```
+
+### Implementing a Service
+
+__Thrift__
+
+```thrift
+namespace java org.example
+
+// ... Person struct from above ...
 
 service PersonIndex {
-    bool store(1:Person p),
-    Person getPerson(1:string lastName)
+    bool storePerson(1:i32 id, 2:Person p),
+    Person getPerson(1:i32 id)
 }
 ```
 
-Compile the Thrift file (`thrift --gen java -out <Path> test.thrift`) and add `<Path>` to 
-Leiningens classpath:
+__Clojure__
 
 ```clojure
-...
-  :java-source-paths ["<Path>" ...]
-...
+(require '[thrift-clj.core :as thrift])
+(thrift/import 
+  (:types [org.example Person])
+  (:services org.example.PersonIndex))
+
+(defonce person-db (atom {}))
+(thrift/defservice person-index-service
+  PersonIndex
+  (storePerson [id p]
+    (boolean
+      (when-not (@person-db id)
+          (info "Storing Person:" p)
+          (swap! person-db assoc id p)
+          true)))
+  (getPerson [id]
+    (info "Retrieving Person for ID:" id)
+    (@person-db id))) 
+    
+(let [server (thrift/multi-threaded-server 
+               person-index-service
+               :socket 7007)]
+  (thrift/start-server! server))
 ```
 
-__example.clj__
+### Running a Client
 
 ```clojure
-(ns example
-  (:require [thrift-clj.core :as thrift]))
-
-;; Import Thrift Classes
-(thrift/import
-  (:types org.example.Person)
-  (:services [org.example.PersonIndex :as PS])
-  (:clients [org.example.PersonIndex :as PI]))
-
-;; Implement the Service
-(thrift/defservice person-index-service PS
-  :let [person-db (atom {})]
-  (store [{:keys[firstName lastName age] :as p}]
-    (println "Storing Person:")
-    (println "  First Name:" firstName)
-    (println "  Last Name:" lastName)
-    (println "  Age:" age)
-    (swap! person-db update-in [lastName] conj p) 
-    true)
-  (getPerson [lastName]
-    (first (@person-db lastName))))
-
-;; Start a Server
-(def server (thrift/single-threaded-server person-index-service :socket 7007))
-(future (thrift/start-server! server))
-
-;; Prepare Client and Data
-(def client (thrift/create-client PI :socket "localhost" 7007))
-(def p (Person. "Some" "One" 99))
-
-;; Go!
+(require '[thrift-clj.core :as thrift])
+(thrift/import 
+  (:types [org.example Person])
+  (:clients org.example.PersonIndex))
+  
+(def client (thrift/create-client PersonIndex :socket "localhost" 7007))
 (with-open [c (thrift/connect! client)]
-  (PI/store c p)
-  (println "Trying to retrieve Person ...")
-  (let [p' (PI/getPerson c "One")]
-    (println p' (if (= p p') "[matches sent Person]" "")))
-  (println "Done."))
-
-;; Cleanup
-(thrift/stop-server! server)
+  (PersonIndex/storePerson c 1 (Person. "Some" "One" 99))
+  (PersonIndex/getPerson c 1))
 ```
 
 ## Roadmap
@@ -103,13 +121,15 @@ __example.clj__
 - Have a look at Lists/Sets/Enums/...
 - wrappers around Protocols (to encode/decode values directly to/from byte arrays)
 - more protocols/servers/clients
-- tests & documentationn
+- tests & documentation
 - ...
 
 ## Related Work/Inspiration
 
 - [Apache Thrift](https://github.com/apache/thrift)
 - [Plaid Penguin](https://github.com/ithayer/plaid-penguin)
+- [lein-thriftc](https://github.com/xsc/lein-thriftc)
+- [thrift-clj-example](https://github.com/xsc/thrift-clj-example)
 
 ## License
 
