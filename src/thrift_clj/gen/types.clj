@@ -72,45 +72,67 @@
   "Generate Record Type that can be converted to its Thrift equivalent."
   [clojure-type thrift-type mta]
   (let [fields (map (comp symbol :name) mta)
-        find-fn (u/static (u/inner thrift-type "_Fields") "findByThriftId")]
+        find-fn (u/static (u/inner thrift-type "_Fields") "findByThriftId")
+        obj (gensym "o")]
     `(defrecord ~clojure-type [~@fields]
        Value
        (->clj* [v#] v#)
        (->thrift* [~'_]
-         (doto (new ~thrift-type)
-           ~@(for [[field sym] (map vector mta fields)]
-               (let [v (if-let [w (:wrapper field)]
-                         `(~w ~sym)
-                         sym)]
-                 `(.setFieldValue (~find-fn ~(:id field)) (->thrift ~v)))))))))
+         (let [~obj (new ~thrift-type)]
+           ~@(for [[{:keys[require id wrapper]} sym] (map vector mta fields)]
+               (let [value (if wrapper `(~wrapper ~sym) sym)]
+                 (if (= require :optional)
+                   `(.setFieldValue ~obj (~find-fn ~id) (and ~sym (->thrift ~value)))
+                   `(if-not ~sym
+                      (throw (Exception. ~(str "Not an optional field: " sym)))
+                      (.setFieldValue ~obj (~find-fn ~id) (->thrift ~value))))))
+           ~obj)))))
 
 ;; ## Import
 
 (nsp/def-reload-indicator reload-types?)
 
+(defn- generate-struct-import
+  "Import a Struct Type. This creates a Clojure type and extends the Thrift type to be
+   convertable to Clojure (and vice versa)."
+  [t]
+  (let [current-ns (ns-name *ns*)
+        clojure-type (u/class-symbol t)
+        thrift-type (u/full-class-symbol t)]
+    (try
+      (when-let [mta (t/type-metadata t)]
+        `(do
+           ~@(when (reload-types? thrift-type)
+               [`(ns-unmap '~current-ns '~clojure-type)
+                `(nsp/internal-ns-remove '~thrift-type)])
+           (nsp/internal-ns
+             ~thrift-type 
+             ~(generate-clojure-type clojure-type thrift-type mta)
+             ~(extend-thrift-type clojure-type thrift-type mta))
+           (nsp/internal-ns-import
+             ~thrift-type
+             ~clojure-type)))
+      (catch Exception ex
+        (error ex "when importing type:" thrift-type)
+        (throw (Exception.
+                 (str "Error when importing `" thrift-type "': " (.getMessage ex))
+                 ex))))))
+
+(defn- generate-enum-import
+  "Import an Enum Type. This equals a normal import."
+  [t]
+  (let [current-ns (ns-name *ns*)
+        thrift-type (u/full-class-symbol t)]
+    `(do
+       ~(when (reload-types? thrift-type)
+          `(ns-unmap '~current-ns '~thrift-type))
+       (import '~thrift-type))))
+
 (defn generate-thrift-type-imports
   "Generate a Clojure Type that corresponds to a given Thrift Type for a seq
    of Thrift type classes."
   [types]
-  (let [current-ns (ns-name *ns*)]
-    (for [t types]
-      (let [clojure-type (u/class-symbol t)
-            thrift-type (u/full-class-symbol t)]
-        (try
-          (when-let [mta (t/type-metadata t)]
-            `(do
-               ~@(when (reload-types? thrift-type)
-                   [`(ns-unmap '~current-ns '~clojure-type)
-                    `(nsp/internal-ns-remove '~thrift-type)])
-               (nsp/internal-ns
-                 ~thrift-type 
-                 ~(generate-clojure-type clojure-type thrift-type mta)
-                 ~(extend-thrift-type clojure-type thrift-type mta))
-               (nsp/internal-ns-import
-                 ~thrift-type
-                 ~clojure-type)))
-          (catch Exception ex
-            (error ex "when importing type:" thrift-type)
-            (throw (Exception.
-                     (str "Error when importing `" thrift-type "': " (.getMessage ex))
-                     ex))))))))
+  (for [t types]
+    (cond (t/thrift-struct? t) (generate-struct-import t)
+          (t/thrift-enum? t) (generate-enum-import t)
+          :else (throw (Exception. (str "Not a Thrift type/enum: " t))))))

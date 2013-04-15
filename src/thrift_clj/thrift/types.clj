@@ -2,6 +2,7 @@
        :author "Yannick Scherer" }
   thrift-clj.thrift.types
   (:import (java.lang.reflect Field)
+           (org.apache.thrift TBase TEnum)
            (org.apache.thrift.meta_data FieldMetaData FieldValueMetaData)))
 
 ;; ## Types
@@ -85,3 +86,16 @@
                 (create-field-metadata-map k metadata-obj))
               m)))
         (catch Exception _ nil)))))
+
+;; ### Checks
+
+(defn thrift-struct?
+  "Check if Class represents a Thrift Type/Struct."
+  [^Class class]
+  (and (.isAssignableFrom TBase class)
+       (nil? (.getDeclaringClass class))))
+
+(defn thrift-enum?
+  "Check if Class represents a Thrift Enum."
+  [^Class class]
+  (.isAssignableFrom TEnum class))
