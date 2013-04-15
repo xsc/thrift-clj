@@ -12,14 +12,11 @@
                  [org.slf4j/slf4j-log4j12 "1.5.2"]
                  [potemkin "0.2.1"]]
 
-  :test-paths ["test/clj"]
-
   :profiles {:dev {:dependencies [[midje "1.5.1"]]
                    :plugins [[lein-midje "3.0.0"]]}
-             :test-thriftc {:plugins [[lein-thriftc "0.1.0"]]
-                            :prep-tasks ["thriftc"]
-                            :thriftc {:source-paths ["test/thrift"]}}
-             :test-java {:java-source-paths ["test/java"]}}
-  
-  :aliases {"midje-with-thrift" ["with-profile" "dev,test-thriftc" "midje"]
-            "midje-with-java" ["with-profile" "dev,test-java" "midje"]})
+             :test-all {:plugins [[lein-thriftc "0.1.0"]]
+                        :prep-tasks ["thriftc"]
+                        :test-paths ["test-thrift/clj"]
+                        :thriftc {:source-paths ["test-thrift/thrift"]}}}
+
+  :aliases {"midje-all" ["with-profile" "dev,test-all" "midje"]})
