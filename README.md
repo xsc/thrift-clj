@@ -92,9 +92,9 @@ __Clojure__
   (storePerson [id p]
     (boolean
       (when-not (@person-db id)
-          (info "Storing Person:" p)
-          (swap! person-db assoc id p)
-          true)))
+        (info "Storing Person:" p)
+        (swap! person-db assoc id p)
+        true)))
   (getPerson [id]
     (info "Retrieving Person for ID:" id)
     (@person-db id))) 
