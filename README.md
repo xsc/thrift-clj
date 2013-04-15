@@ -53,11 +53,14 @@ __Clojure__
 (thrift/import 
   (:types [org.example Person]))
   
-(def clj-p (Person. "Some" "One" 99)) ;; => #ns_1071852349.Person{:firstName "Some", :lastName "One", :age 99}
-(def thr-p (thrift/->thrift clj-p))   ;; => #<Person Person(firstName:Some, lastName:One, age:99)>
+(def clj-p (Person. "Some" "One" 99)) 
+;; => #ns_1071852349.Person{:firstName "Some", :lastName "One", :age 99}
 
-(class clj-p)                         ;; => ns_1071852349.Person
-(class thr-p)                         ;; => org.example.Person
+(def thr-p (thrift/->thrift clj-p))   
+;; => #<Person Person(firstName:Some, lastName:One, age:99)>
+
+(class clj-p) ;; => ns_1071852349.Person
+(class thr-p) ;; => org.example.Person
 ```
 
 ### Implementing a Service
