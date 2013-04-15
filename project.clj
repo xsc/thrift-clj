@@ -1,4 +1,4 @@
-(defproject thrift-clj "0.1.0-alpha2"
+(defproject thrift-clj "0.1.0-alpha3"
   :description "Clojure and Thrift working hand in hand."
   :url "https://github.com/xsc/thrift-clj"
   :license {:name "Eclipse Public License"
@@ -19,12 +19,7 @@
              :test-thriftc {:plugins [[lein-thriftc "0.1.0"]]
                             :prep-tasks ["thriftc"]
                             :thriftc {:source-paths ["test/thrift"]}}
-             :test-java {:java-source-paths ["test/java"]}
-             :example {:plugins [[lein-thriftc "0.1.0"]]
-                       :prep-tasks ["thriftc"]
-                       :thriftc { :source-paths ["example/thrift"] }
-                       :source-paths ["example/clj"]}}
+             :test-java {:java-source-paths ["test/java"]}}
   
-  :aliases {"example-repl" ["with-profile" "dev,example" "repl"]
-            "midje-with-thrift" ["with-profile" "dev,test-thriftc" "midje"]
+  :aliases {"midje-with-thrift" ["with-profile" "dev,test-thriftc" "midje"]
             "midje-with-java" ["with-profile" "dev,test-java" "midje"]})
