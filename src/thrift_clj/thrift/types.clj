@@ -60,6 +60,14 @@
   [m _]
   (assoc m :wrapper `str))
 
+(defmethod extend-field-metadata-map :set
+  [m _]
+  (assoc m :wrapper `set))
+
+(defmethod extend-field-metadata-map :list
+  [m _]
+  (assoc m :wrapper `vec))
+
 ;; ### Metadata
 
 (defn- create-field-metadata-map

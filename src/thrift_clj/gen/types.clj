@@ -52,6 +52,43 @@
 (defbase java.lang.Double)
 (defbase java.lang.Boolean)
 
+(extend-type java.util.Set
+  Value
+  (->thrift* [this]
+    (java.util.HashSet. (map ->thrift this)))
+  (->clj* [this]
+    (set (map ->clj this))))
+
+(extend-type java.util.List
+  Value
+  (->thrift* [this]
+    (java.util.ArrayList. (map ->thrift this)))
+  (->clj* [this]
+    (vec (map ->clj this))))
+
+(extend-type java.util.Map
+  Value
+  (->thrift* [this]
+    (java.util.HashMap. 
+      (->> this
+        (map 
+          (fn [[k v]]
+            (vector (->thrift k) (->thrift v))))
+        (into {}))))
+  (->clj* [this]
+    (->> this
+      (map 
+        (fn [[k v]]
+          (vector (->clj k) (->clj v))))
+      (into {}))))
+
+(extend-type clojure.lang.IPersistentVector
+  Value
+  (->thrift* [this]
+    (java.util.ArrayList. (map ->thrift this)))
+  (->clj* [this]
+    (vec (map ->clj this))))
+
 ;; ## Form Generation Helpers
 
 (defn- extend-thrift-type
