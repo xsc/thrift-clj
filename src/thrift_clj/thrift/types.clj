@@ -46,7 +46,7 @@
 
 (defmethod extend-field-metadata-map :i16
   [m _]
-  (assoc m :wrapper `int))
+  (assoc m :wrapper `short))
 
 (defmethod extend-field-metadata-map :i32
   [m _]
