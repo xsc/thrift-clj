@@ -1,9 +1,5 @@
 language: clojure
 lein: lein2
-before_script:
-  - wget -O ./thrift http://travis.xscheme.de/thrift-0.9.0-ubuntu-12.04-i386
-  - chmod +x ./thrift
-  - ./thrift
 script: lein2 midje
 jdk:
   - openjdk7
