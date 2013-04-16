@@ -1,5 +1,5 @@
 (ns
-  thrift-clj.struct-test
+  thrift-clj.gen.types-test
   (:use midje.sweet)
   (:require [thrift-clj.core :as thrift]))
 
