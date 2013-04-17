@@ -16,6 +16,7 @@
 (nsp/def-reload-indicator reload-iface?)
 
 (defn generate-thrift-iface-import
+  "Generate single Iface import."
   [service-class iface-alias]
   (let [cls (u/full-class-symbol service-class)
         iface-cls (u/inner cls "Iface")
@@ -34,3 +35,10 @@
                     (. client# ~(symbol name) 
                        ~@(map #(list `t/->thrift %) params)))))))
        (nsp/internal-ns-require '~iface-cls '~iface-alias))))
+
+(defn generate-thrift-iface-imports
+  "Generate Iface Namespace for the given Service-Class/Iface-Alias pairs."
+  [service-map]
+  (for [[service-class iface-alias] service-map]
+    (let [iface-alias (or iface-alias (u/class-symbol service-class))]
+      (generate-thrift-iface-import service-class iface-alias))))

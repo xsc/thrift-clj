@@ -7,6 +7,7 @@
   (:require [thrift-clj.gen.types :as t]
             [thrift-clj.gen.services :as s]
             [thrift-clj.gen.clients :as c]
+            [thrift-clj.gen.iface :as i]
             [thrift-clj.server :as srv]
             [thrift-clj.client :as cln]
             [thrift-clj.thrift.core :as thr]))
@@ -137,6 +138,16 @@
                    (thr/thrift-services (map name packages)))]
     `(do
        ~@(c/generate-thrift-client-imports services)
+       true)))
+
+;; ### Iface
+
+(defmacro import-iface
+  "Import the given Thrift Iface without creating Services/Clients to handle it."
+  [& services]
+  (let [service-map (generate-class-map services)]
+    `(do
+       ~@(i/generate-thrift-iface-imports service-map)
        true)))
 
 ;; ### Everyhting
