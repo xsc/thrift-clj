@@ -4,7 +4,9 @@
   (:import [org.apache.thrift.transport
             TTransport TSocket TNonblockingSocket THttpClient
             TFramedTransport TFastFramedTransport
-            TMemoryInputTransport TMemoryBuffer]))
+            TMemoryInputTransport TMemoryBuffer
+            TIOStreamTransport]
+           [java.io ByteArrayInputStream ByteArrayOutputStream]))
 
 ;; ## Creation Multimethod
 
@@ -55,3 +57,7 @@
 (defmethod create-client-transport :memory-out
   ([_] (TMemoryBuffer. 1024))
   ([_ size] (TMemoryBuffer. (int size)))) 
+
+(defmethod create-client-transport :streams
+  ([_ in out] 
+   (TIOStreamTransport. in out)))
