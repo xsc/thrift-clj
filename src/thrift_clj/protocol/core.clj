@@ -1,0 +1,59 @@
+(ns ^{ :doc "Thrift Protocol Wrappers"
+       :author "Yannick Scherer" }
+  thrift-clj.protocol.core
+  (:import [org.apache.thrift.protocol 
+            TProtocol TProtocolFactory
+            TBinaryProtocol$Factory TCompactProtocol$Factory
+            TJSONProtocol$Factory TSimpleJSONProtocol$Factory TTupleProtocol$Factory]
+           [org.apache.thrift.transport TTransport]))
+
+;; ## Protocol Multimethod
+
+(defmulti ^TProtocolFactory protocol-factory*
+  "Create Protocol Factory of the given Type with the given Options."
+  (fn [id opts] id)
+  :default nil)
+
+(defmethod protocol-factory* nil
+  [id opts]
+  (throw (Exception. (str "Unknown Protocol: " id))))
+
+(defn ^TProtocolFactory protocol-factory
+  "Create Protocol Factory of the given Type with the given Options."
+  [id & args]
+  (protocol-factory* id (apply hash-map args)))
+
+(defn ^TProtocol protocol
+  "Create Protocol of the given Type with the given Options."
+  [id ^TTransport transport & args]
+  (when-let [factory (apply protocol-factory id args)]
+    (.getProtocol factory transport)))
+
+;; ## Protocol Implementations
+
+(defmethod protocol-factory* :binary
+  [_ {:keys[strict-read strict-write read-length]}]
+  (TBinaryProtocol$Factory. 
+    (boolean strict-read)
+    (boolean strict-write)
+    (int (or read-length 0))))
+
+(defmethod protocol-factory* :compact
+  [_ {:keys[max-network-bytes]}]
+  (TCompactProtocol$Factory.
+    (long (or max-network-bytes -1))))
+
+(let [json-factory (TJSONProtocol$Factory.)]
+  (defmethod protocol-factory* :json
+    [_ _]
+    json-factory))
+
+(let [simple-json-factory (TSimpleJSONProtocol$Factory.)]
+  (defmethod protocol-factory* :simple-json
+    [_ _]
+    simple-json-factory))
+
+(let [tuple-factory (TTupleProtocol$Factory.)]
+  (defmethod protocol-factory* :tuple
+    [_ _]
+    tuple-factory))
