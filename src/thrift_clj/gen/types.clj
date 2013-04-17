@@ -81,6 +81,7 @@
     `(extend-type ~thrift-type
        Value
        (->thrift* [~v] ~v)
+       (->thrift-unchecked* [~v] ~v)
        (->clj* [~v]
          (new 
            ~clojure-type
@@ -96,6 +97,12 @@
     `(defrecord ~clojure-type [~@fields]
        Value
        (->clj* [v#] v#)
+       (->thrift-unchecked* [~'_]
+         (let [~obj (new ~thrift-type)]
+           ~@(for [[{:keys[require id wrapper]} sym] (map vector mta fields)]
+               (let [value (if wrapper `(~wrapper ~sym) sym)]
+                 `(.setFieldValue ~obj (~find-fn ~id) (and ~sym (->thrift ~value)))))
+           ~obj))
        (->thrift* [~'_]
          (let [~obj (new ~thrift-type)]
            ~@(for [[{:keys[require id wrapper]} sym] (map vector mta fields)]

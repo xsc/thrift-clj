@@ -28,16 +28,16 @@
 (extend-type TDeserializer
   Deserializer
   (bytes->value [this prototype data]
-    (let [proto (c/->thrift prototype)]
+    (let [proto (c/->thrift-unchecked prototype)]
       (.deserialize this proto data)
-      proto))
+      (c/->clj proto)))
   (string->value 
     ([this prototype string] 
-     (let [proto (c/->thrift prototype)]
+     (let [proto (c/->thrift-unchecked prototype)]
        (.fromString this proto string)
        (c/->clj proto)))
     ([this prototype string charset]
-     (let [proto (c/->thrift prototype)]
+     (let [proto (c/->thrift-unchecked prototype)]
        (.deserialize this proto string charset)
        (c/->clj proto)))))
 
