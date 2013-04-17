@@ -1,7 +1,8 @@
 (ns ^{ :doc "Thrift Type Import"
        :author "Yannick Scherer" }
   thrift-clj.gen.types
-  (:use clojure.tools.logging)
+  (:use thrift-clj.gen.core
+        clojure.tools.logging)
   (:require [thrift-clj.thrift.types :as t]
             [thrift-clj.utils.symbols :as u]
             [thrift-clj.utils.namespaces :as nsp]))
@@ -16,25 +17,6 @@
 ;; using `import`.
 
 ;; ## Conversion
-
-(defprotocol Value
-  "Protocol for Values."
-  (->thrift* [this]
-    "Convert Value to Thrift Representation if possible.")
-  (->clj* [this]
-    "Convert Value to Clojure Representation if possible."))
-
-(defn ->thrift
-  [v]
-  (if (satisfies? Value v)
-    (->thrift* v)
-    v))
-
-(defn ->clj
-  [v]
-  (if (satisfies? Value v)
-    (->clj* v)
-    v))
 
 (defmacro ^:private defbase
   "Define types that are identical in Thrift and Clojure."

@@ -4,7 +4,8 @@
   (:refer-clojure :exclude [import])
   (:use [potemkin :only [import-macro import-fn]]
         clojure.tools.logging)
-  (:require [thrift-clj.gen.types :as t]
+  (:require [thrift-clj.gen.core :as gen]
+            [thrift-clj.gen.types :as t]
             [thrift-clj.gen.services :as s]
             [thrift-clj.gen.clients :as c]
             [thrift-clj.gen.iface :as i]
@@ -27,8 +28,8 @@
 (import-fn c/connect!)
 (import-fn c/disconnect!)
 
-(import-fn t/->thrift)
-(import-fn t/->clj)
+(import-fn gen/->thrift)
+(import-fn gen/->clj)
 
 (import-fn cln/create-client)
 

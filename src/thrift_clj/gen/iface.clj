@@ -1,8 +1,8 @@
 (ns ^{ :doc "Iface Wrappers"
        :author "Yannick Scherer" }
   thrift-clj.gen.iface
-  (:require [thrift-clj.gen.types :as t]
-            [thrift-clj.thrift.services :as s]
+  (:use thrift-clj.gen.core)
+  (:require [thrift-clj.thrift.services :as s]
             [thrift-clj.utils.symbols :as u]
             [thrift-clj.utils.namespaces :as nsp]))
 
@@ -31,9 +31,9 @@
              (let [params (take (count params) param-syms)]
                `(defn ~(symbol name)
                   [client# ~@params]
-                  (t/->clj
+                  (->clj
                     (. client# ~(symbol name) 
-                       ~@(map #(list `t/->thrift %) params)))))))
+                       ~@(map #(list `->thrift %) params)))))))
        (nsp/internal-ns-require '~iface-cls '~iface-alias))))
 
 (defn generate-thrift-iface-imports

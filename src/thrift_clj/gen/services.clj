@@ -1,8 +1,8 @@
 (ns ^{ :doc "Thrift Service Import"
        :author "Yannick Scherer" }
   thrift-clj.gen.services
+  (:use thrift-clj.gen.core)
   (:require [thrift-clj.gen.iface :as ifc]
-            [thrift-clj.gen.types :as t]
             [thrift-clj.thrift.services :as s]
             [thrift-clj.utils.symbols :as u]
             [thrift-clj.utils.namespaces :as nsp])
@@ -73,7 +73,7 @@
                `(~(symbol name) [~@params]
                    (debug ~(str "[" method-name "]") "Entering Method ...")
                    (if-let [h# (get ~handler ~(keyword name))]
-                     (let [r# (t/->thrift (h# ~@(map #(list `t/->clj %) params)))]
+                     (let [r# (->thrift (h# ~@(map #(list `->clj %) params)))]
                        (debug  ~(str "[" method-name "] Done."))
                        r#)
                      (throw (Exception. ~(str "[" method-name "] Service Method not implemented.")))))))))))
