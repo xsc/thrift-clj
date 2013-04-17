@@ -14,9 +14,15 @@
 
   :profiles {:dev {:dependencies [[midje "1.5.1"]]
                    :plugins [[lein-midje "3.0.0"]]}
+             :doc {:plugins [[codox "0.6.4"]
+                             [lein-marginalia "0.7.1"]]
+                   :codox {:sources ["src/thrift_clj"]
+                           :output-dir "doc/autodoc"}}
              :test-all {:plugins [[lein-thriftc "0.1.0"]]
                         :prep-tasks ["thriftc"]
                         :test-paths ["test-thrift/clj"]
                         :thriftc {:source-paths ["test-thrift/thrift"]}}}
 
-  :aliases {"midje-all" ["with-profile" "dev,test-all" "midje"]})
+  :aliases {"midje-all" ["with-profile" "dev,test-all" "midje"]
+            "doc-marginalia" ["with-profile" "doc" "marg" "-d" "doc/autodoc" "-f" "marginalia.html"]
+            "doc-codox" ["with-profile" "doc" "doc"]})
