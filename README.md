@@ -14,7 +14,7 @@ thrift-clj is available via [Clojars](http://clojars.org/thrift-clj).
 __Leiningen__
 
 ```clojure
-[thrift-clj "0.1.0-alpha4"]
+[thrift-clj "0.1.0-alpha5"]
 ```
 
 __Note__: Tested with the Thrift 0.9.0 compiler. Since this depends massively on the generated code, make sure to use
@@ -99,10 +99,11 @@ __Clojure__
     (info "Retrieving Person for ID:" id)
     (@person-db id))) 
     
-(let [server (thrift/multi-threaded-server 
-               person-index-service
-               :socket 7007)]
-  (thrift/start-server! server))
+(thrift/serve-and-block!
+  (thrift/multi-threaded-server
+    person-index-service 7007
+    :bind "localhost"
+    :protocol :compact))
 ```
 
 ### Running a Client
@@ -113,8 +114,9 @@ __Clojure__
   (:types [org.example Person])
   (:clients org.example.PersonIndex))
   
-(def client (thrift/create-client PersonIndex :socket "localhost" 7007))
-(with-open [c (thrift/connect! client)]
+(with-open [c (thrift/connect! PersonIndex 
+                [:socket "localhost" 7007] 
+                :protocol :compact)]
   (PersonIndex/storePerson c 1 (Person. "Some" "One" 99))
   (PersonIndex/getPerson c 1))
 ```
