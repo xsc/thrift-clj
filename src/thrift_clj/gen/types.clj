@@ -80,8 +80,8 @@
         find-fn (u/static (u/inner thrift-type "_Fields") "findByThriftId")]
     `(extend-type ~thrift-type
        Value
-       (->thrift* [~v] ~v)
-       (->thrift-unchecked* [~v] ~v)
+       (->thrift* [~v] (new ~thrift-type ~v))
+       (->thrift-unchecked* [~v] (new ~thrift-type ~v))
        (->clj* [~v]
          (new 
            ~clojure-type
