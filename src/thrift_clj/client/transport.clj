@@ -25,10 +25,6 @@
   [_ host port]
   (TSocket. (str host) (int port)))
 
-(defmethod create-client-transport :nonblocking
-  [_ host port]
-  (TNonblockingSocket. (str host) (int port)))
-
 (defmethod create-client-transport :http
   [_ url & {:keys[connect-timeout read-timeout custom-headers]}]
   (let [^THttpClient c (THttpClient. (str url))]

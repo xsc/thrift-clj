@@ -23,7 +23,7 @@
 (defn connect!
   "Create new Client of the given Class that connects to the given
    service."
-  [client-class & {:keys[transport protocol]}]
+  [client-class transport & {:keys[protocol]}]
   (let [[trans-id & trans-args] (if (keyword? transport)
                                   [transport]
                                   transport)

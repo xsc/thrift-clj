@@ -10,7 +10,7 @@
             [thrift-clj.gen.clients :as c]
             [thrift-clj.gen.iface :as i]
             [thrift-clj.client.core :as client]
-            [thrift-clj.server :as srv]
+            [thrift-clj.server.core :as srv]
             [thrift-clj.thrift.core :as thr]))
 
 ;; ## Concept
@@ -34,8 +34,9 @@
 (import-fn srv/single-threaded-server)
 (import-fn srv/multi-threaded-server)
 (import-fn srv/nonblocking-server)
-(import-fn srv/start-server!)
-(import-fn srv/stop-server!)
+(import-fn srv/serve-and-block!)
+(import-fn srv/serve!)
+(import-fn srv/stop!)
 
 ;; ## Load Certain Resources
 
