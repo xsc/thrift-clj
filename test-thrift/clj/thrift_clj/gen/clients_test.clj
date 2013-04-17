@@ -13,3 +13,5 @@
   TB/storePerson => fn?
   TB/findByName => fn?
   TB/findByLocation => fn?)
+
+(thrift/connect! TB :transport [:memory-in (.getBytes "ABC")])

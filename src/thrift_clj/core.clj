@@ -9,8 +9,8 @@
             [thrift-clj.gen.services :as s]
             [thrift-clj.gen.clients :as c]
             [thrift-clj.gen.iface :as i]
+            [thrift-clj.client.core :as client]
             [thrift-clj.server :as srv]
-            [thrift-clj.client :as cln]
             [thrift-clj.thrift.core :as thr]))
 
 ;; ## Concept
@@ -25,13 +25,11 @@
 (import-macro s/service)
 (import-macro s/defservice)
 
-(import-fn c/connect!)
-(import-fn c/disconnect!)
+(import-fn client/connect!)
+(import-fn client/disconnect!)
 
 (import-fn gen/->thrift)
 (import-fn gen/->clj)
-
-(import-fn cln/create-client)
 
 (import-fn srv/single-threaded-server)
 (import-fn srv/multi-threaded-server)
@@ -92,6 +90,7 @@
 (defmacro import-services
   "Import the given Thrift Services making them accessible via `defservice`.
    There are three types of specification formats:
+
    - `package.Class`: load exactly this service, using the name `Class`
    - `[package Class1 Class2 ...]`: load the given services from the package, using class names
      as type names
@@ -119,6 +118,7 @@
 (defmacro import-clients
   "Import the given Thrift Clients making them accessible via `defservice`.
    There are three types of specification formats:
+
    - `package.Class`: load exactly this client, using the name `Class`
    - `[package Class1 Class2 ...]`: load the given client from the package, using class names
      as type names

@@ -2,8 +2,8 @@
        :author "Yannick Scherer" }
   thrift-clj.gen.clients
   (:require [thrift-clj.gen.iface :as ifc]
-            [thrift-clj.gen.types :as t]
-            [thrift-clj.thrift.services :as s]
+            [thrift-clj.client.core :as client]
+            [thrift-clj.thrift.services :as s :only [thrift-service-methods]]
             [thrift-clj.utils.symbols :as u]
             [thrift-clj.utils.namespaces :as nsp]))
 
@@ -11,13 +11,6 @@
 ;;
 ;; Clients need an alias that will be used as a var containing a reference to
 ;; the client class. Also, the service interface will be imported using that alias.
-
-;; ## Protocol
-
-(defprotocol Client
-  "Protocol for Clients."
-  (connect! [this])
-  (disconnect! [this]))
 
 ;; ## Multimethods
 
@@ -33,22 +26,15 @@
 ;; ## Form Generation Helpers
 
 (defn- generate-client-type
-  "Generate Type that delegates to a contained Client, implementing connection/disconnection
-   and `java.io.Closeable` for use with `with-open`."
+  "Generate Type that delegates to a contained Client, implementing `java.io.Closeable` 
+   for use with `with-open`."
   [client-sym cls mth]
   (let [iface (u/inner cls "Iface")
         param-syms (repeatedly gensym)
         c (gensym)]
     `(deftype ~client-sym [~c transport#]
-       Client
-       (connect! [this#] 
-         (.open transport#) 
-         this#)
-       (disconnect! [this#] 
-         (.close transport#)
-         this#)
        java.io.Closeable
-       (close [this#] (disconnect! this#))
+       (close [this#] (.close transport#))
        ~iface
        ~@(for [{:keys[name params]} mth]
            (let [params (take (count params) param-syms)]
@@ -56,16 +42,15 @@
                  (. ~c ~(symbol name) ~@params)))))))
 
 (defn- generate-client-defmethods
-  "Generate \"Hooks\" to make Client accessible to Clojure."
+  "Generate Implementation of `thrift-clj.client.core/connect!*`"
   [client-sym cls]
   (let [cln (u/inner cls "Client")]
     `(do
-       (defmethod wrap-client ~cln
-         [~'_ client# transport#]
-         (new ~client-sym client# transport#))
-       (defmethod new-client ~cln
-         [~'_ proto#]
-         (new ~cln proto#)))))
+       (defmethod client/connect!* ~cln
+         [~'_ protocol# transport#]
+         (let [client# (new ~client-sym (new ~cln protocol#) transport#)]
+           (.open transport#)
+           client#)))))
 
 ;; ## Import
 
