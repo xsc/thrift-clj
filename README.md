@@ -123,9 +123,9 @@ __Clojure__
 
 ## Roadmap
 
-- Have a look at Lists/Sets/Enums/...
-- wrappers around Protocols (to encode/decode values directly to/from byte arrays)
-- more protocols/servers/clients
+- ~~Have a look at Lists/Sets/Enums/...~~
+- ~~wrappers around Protocols (to encode/decode values directly to/from byte arrays)~~
+- ~~more protocols/servers/clients~~
 - tests & documentation
 - ...
 
