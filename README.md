@@ -114,9 +114,7 @@ __Clojure__
   (:types [org.example Person])
   (:clients org.example.PersonIndex))
   
-(with-open [c (thrift/connect! PersonIndex 
-                [:socket "localhost" 7007] 
-                :protocol :compact)]
+(with-open [c (thrift/connect! PersonIndex ["localhost" 7007])]
   (PersonIndex/storePerson c 1 (Person. "Some" "One" 99))
   (PersonIndex/getPerson c 1))
 ```
