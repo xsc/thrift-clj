@@ -56,38 +56,40 @@
 
 ;; ## Form Generation Helpers
 
-(defn- generate-proxy-fn
-  "Generate Function that creates a Proxy around the given class' `Iface` based on
-   a map of method-name/method-fn pairs, transparently converting between Clojure
-   and Thrift representations."
-  [proxy-fn-sym cls mth]
+(defn- generate-iface-type
+  "Generate Type that implements a services Iface, delegating method calls to
+   the different handler functions it consists of."
+  [type-sym cls mth]
   (let [iface (u/inner cls "Iface")
         param-syms (repeatedly gensym)
-        handler (gensym "handler-")]
-    `(defn- ~proxy-fn-sym
-       [~handler]
-       (proxy [~iface] []
-         ~@(for [{:keys[name params]} mth]
-             (let [params (take (count params) param-syms)
-                   method-name (str cls "." name)]
-               `(~(symbol name) [~@params]
-                   (debug ~(str "[" method-name "]") "Entering Method ...")
-                   (if-let [h# (get ~handler ~(keyword name))]
-                     (let [r# (->thrift (h# ~@(map #(list `->clj %) params)))]
-                       (debug  ~(str "[" method-name "] Done."))
-                       r#)
-                     (throw (Exception. ~(str "[" method-name "] Service Method not implemented.")))))))))))
+        handler-syms (repeatedly #(gensym "handler-"))]
+    `(deftype ~type-sym [~@(take (count mth) handler-syms)]
+       ~iface
+       ~@(for [[{:keys[name params]} handler] (map vector mth handler-syms)]
+           (let [params (take (count params) param-syms)
+                 method-name (str cls "." name)
+                 impl-sym (symbol name)
+                 handler-call `(->thrift (~handler ~@(map #(list `->clj %) params)))]
+             `(~impl-sym [this# ~@params]
+                (debug ~(str "[" method-name "]") "Entering Method ...")
+                (when-not ~handler
+                  (throw (Exception. ~(str "[" method-name "] Service Method not implemented."))))
+                (let [r# ~handler-call]
+                  (debug ~(str "[" method-name "] Done."))
+                  r#)))))))
 
 (defn- generate-service-defmethods
   "Generate \"Hooks\" to be called by `service.`"
-  [proxy-fn-sym cls]
-  (let [iface (u/inner cls "Iface")
-        proc (u/inner cls "Processor")]
+  [type-sym cls mth]
+  (let [proc (u/inner cls "Processor")
+        m (gensym "m")]
     `(do 
        (defmethod map->iface ~cls
-         [~'_ m#]
-         (~proxy-fn-sym m#))
-       (defmethod iface->processor ~iface
+         [~'_ ~m]
+         (new ~type-sym 
+              ~@(for [{:keys[name params]} mth]
+                  `(~(keyword name) ~m))))
+       (defmethod iface->processor ~type-sym
          [this#]
          (new ~proc this#)))))
 
@@ -103,16 +105,17 @@
       (try
         (let [service-alias (or service-alias (u/class-symbol service-class))
               mth (s/thrift-service-methods service-class)
-              proxy-sym (gensym)]
+              type-sym (gensym (str (u/class-symbol service-class)))]
           `(do
              ~@(when (reload-service? cls)
                  [`(nsp/internal-ns-remove '~cls)])
              (nsp/internal-ns
                ~cls
-               ~(generate-proxy-fn proxy-sym cls mth)
-               ~(generate-service-defmethods proxy-sym cls))
+               ~(generate-iface-type type-sym cls mth)
+               ~(generate-service-defmethods type-sym cls mth))
              ~(ifc/generate-thrift-iface-import service-class service-alias)
              (def ~service-alias ~cls)
              true))
         (catch Exception ex 
+          (.printStackTrace ex)
           (throw (Exception. (str "Failed to import Service: " cls) ex)))))))
