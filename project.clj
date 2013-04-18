@@ -18,12 +18,13 @@
                              [lein-marginalia "0.7.1"]]
                    :codox {:sources ["src/thrift_clj"]
                            :output-dir "doc/autodoc"}}
+             :test-reflection { :warn-on-reflection true }
              :test-all {:plugins [[lein-thriftc "0.1.0"]]
                         :prep-tasks ["thriftc"]
-                        :warn-on-reflection true
                         :test-paths ["test-thrift/clj"]
                         :thriftc {:source-paths ["test-thrift/thrift"]}}}
 
   :aliases {"midje-all" ["with-profile" "dev,test-all" "midje"]
+            "midje-all+reflection" ["with-profile" "dev,test-all,test-reflection" "midje"]
             "doc-marginalia" ["with-profile" "doc" "marg" "-d" "doc/autodoc" "-f" "marginalia.html"]
             "doc-codox" ["with-profile" "doc" "doc"]})
