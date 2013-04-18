@@ -3,30 +3,24 @@
   thrift-clj.client.transport
   (:import [org.apache.thrift.transport
             TTransport TSocket TNonblockingSocket THttpClient
-            TFramedTransport TFastFramedTransport
-            TMemoryInputTransport TMemoryBuffer
             TIOStreamTransport]
-           [java.io ByteArrayInputStream ByteArrayOutputStream]))
+           [java.io InputStream OutputStream]))
 
-;; ## Creation Multimethod
+;; ## Transports
 
-(defmulti ^TTransport create-client-transport 
-  "Create Client Transport using a Type ID and optional arguments."
-  (fn [id & args] id)
-  :default nil)
+(defn ^TTransport tcp
+  "Create TCP transport."
+  ([port] (tcp "localhost" port))
+  ([host port] (TSocket. (str host) (int port))))
 
-(defmethod create-client-transport nil
-  [id & _]
-  (throw (Exception. (str "No such transport: " id))))
+(defn ^TTransport tcp-async
+  "Create non-blocking TCP transport."
+  ([port] (tcp-async "localhost" port))
+  ([host port] (TNonblockingSocket. (str host) (int port))))
 
-;; ## Transport Types
-
-(defmethod create-client-transport :socket
-  [_ host port]
-  (TSocket. (str host) (int port)))
-
-(defmethod create-client-transport :http
-  [_ url & {:keys[connect-timeout read-timeout custom-headers]}]
+(defn ^TTransport http
+  "Create HTTP transport."
+  [url & {:keys[connect-timeout read-timeout custom-headers]}]
   (let [^THttpClient c (THttpClient. (str url))]
     (when (integer? connect-timeout)
       (.setConnectTimeout c (int connect-timeout)))
@@ -36,24 +30,48 @@
       (.setCustomHeaders c custom-headers))
     c))
 
-(defmethod create-client-transport :framed
-  [_ & rest-transport]
-  (let [inner (apply create-client-transport rest-transport)]
-    (TFramedTransport. inner)))
+(defn ^TTransport streams
+  "Create IOStream transport."
+  [^InputStream in ^OutputStream out]
+  (TIOStreamTransport. in out))
 
-(defmethod create-client-transport :fast-framed
-  [_ & rest-transport]
-  (let [inner (apply create-client-transport rest-transport)]
-    (TFastFramedTransport. inner)))
+;; ## Protocol for "predefined" Transport Schemes
+;;
+;; `TTransport` is taken as-is, Integers are used as a local TCP
+;; port, a vector is used as TCP host/port pair.
 
-(defmethod create-client-transport :memory-in
-  [_ data]
-  (TMemoryInputTransport. (bytes data)))
+(defprotocol ->Transport
+  "Protocol for Things convertable to TTransport."
+  (->transport [this]))
 
-(defmethod create-client-transport :memory-out
-  ([_] (TMemoryBuffer. 1024))
-  ([_ size] (TMemoryBuffer. (int size)))) 
+(extend-type TTransport
+  ->Transport
+  (->transport [this] this))
 
-(defmethod create-client-transport :streams
-  ([_ in out] 
-   (TIOStreamTransport. in out)))
+(extend-protocol ->Transport
+  java.lang.Byte
+  (->transport [this]
+    (tcp (int this)))
+  java.lang.Short
+  (->transport [this]
+    (tcp (int this)))
+  java.lang.Integer
+  (->transport [this]
+    (tcp this))
+  java.lang.Long
+  (->transport [this]
+    (tcp (int this))))
+
+(extend-type clojure.lang.IPersistentVector
+  ->Transport
+  (->transport [this]
+    (when-not (seq this)
+      (throw (Exception. "Cannot convert empty Vector to TTransport.")))
+    (condp = (count this)
+      1 (->transport (first this))
+      2 (let [[a b] this]
+          (cond (instance? InputStream a) (streams a b)
+                (instance? OutputStream a) (streams b a)
+                (and (string? a) (integer? b)) (tcp a b)
+                :else (throw (Exception. (str "Cannot convert Vector to TTransport: " this)))))
+      (throw (Exception. (str "Cannot convert Vector to TTransport: " this))))))

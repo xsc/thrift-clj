@@ -10,6 +10,7 @@
             [thrift-clj.gen.clients :as c]
             [thrift-clj.gen.iface :as i]
             [thrift-clj.client.core :as client]
+            [thrift-clj.client.transport :as ct]
             [thrift-clj.server.core :as srv]
             [thrift-clj.thrift.core :as thr]))
 
@@ -27,6 +28,10 @@
 
 (import-fn client/connect!)
 (import-fn client/disconnect!)
+(import-fn ct/tcp)
+(import-fn ct/tcp-async)
+(import-fn ct/http)
+(import-fn ct/streams)
 
 (import-fn gen/->thrift)
 (import-fn gen/->clj)

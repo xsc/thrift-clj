@@ -3,7 +3,6 @@
   thrift-clj.server.core
   (:require [thrift-clj.gen.services :as s]
             [thrift-clj.protocol.core :as proto])
-  (:use thrift-clj.server.transport)
   (:import [org.apache.thrift.server
              TServer TServer$Args
              TSimpleServer

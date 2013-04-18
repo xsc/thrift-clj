@@ -13,25 +13,22 @@
 (defmulti connect!*
   "Create new Client of the given Class using the given options (e.g. Transport,
    Protocol, ...)."
-  (fn [class protocol transport#] class)
+  (fn [class protocol transport] class)
   :default nil)
 
 (defmethod connect!* nil
-  [class protocol transport#]
+  [class & _]
   (throw (Exception. (str "Could not create Client: " class))))
 
 (defn connect!
   "Create new Client of the given Class that connects to the given
    service."
   [client-class transport & {:keys[protocol]}]
-  (let [[trans-id & trans-args] (if (keyword? transport)
-                                  [transport]
-                                  transport)
-        [proto-id & proto-args] (let [protocol (or protocol :compact)]
+  (let [[proto-id & proto-args] (let [protocol (or protocol :compact)]
                                   (if (keyword? protocol)
                                     [protocol]
                                     protocol))
-        trans (apply t/create-client-transport trans-id trans-args)
+        trans (t/->transport transport)
         proto (apply proto/protocol proto-id trans proto-args)]
     (connect!* client-class proto trans)))
 
