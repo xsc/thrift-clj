@@ -26,7 +26,7 @@
 (defn ^TProtocol protocol
   "Create Protocol of the given Type with the given Options."
   [id ^TTransport transport & args]
-  (when-let [factory (apply protocol-factory id args)]
+  (when-let [^TProtocolFactory factory (apply protocol-factory id args)]
     (.getProtocol factory transport)))
 
 ;; ## Protocol Implementations

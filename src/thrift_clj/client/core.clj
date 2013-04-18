@@ -30,7 +30,7 @@
                                   (if (keyword? protocol)
                                     [protocol]
                                     protocol))
-        ^TTransport trans (t/->transport transport)
+        ^TTransport trans (t/to-transport transport)
         proto (apply proto/protocol proto-id trans proto-args)]
     (connect!* client-class proto trans)))
 

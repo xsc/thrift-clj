@@ -2,7 +2,7 @@
        :author "Yannick Scherer" }
   thrift-clj.thrift.types
   (:import (java.lang.reflect Field)
-           (org.apache.thrift TBase TEnum)
+           (org.apache.thrift TBase TEnum TFieldIdEnum)
            (org.apache.thrift.meta_data FieldMetaData FieldValueMetaData)))
 
 ;; ## Types
@@ -72,7 +72,7 @@
 
 (defn- create-field-metadata-map
   "Create Metadata for Field."
-  [k ^FieldMetaData metadata-obj]
+  [^TFieldIdEnum k ^FieldMetaData metadata-obj]
   (let [^FieldValueMetaData value-metadata-obj (.-valueMetaData metadata-obj)
         metadata-map (-> {}
                        (assoc :key k)

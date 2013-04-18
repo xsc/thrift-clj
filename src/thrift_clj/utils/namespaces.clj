@@ -90,7 +90,7 @@
                (or
                  (when-let [r (ns-resolve n t)]
                    (when (class? r)
-                     (let [cn (symbol (.getName r))]
+                     (let [cn (symbol (.getName ^Class r))]
                        `(import '~cn))))
                  (throw (Exception. (str "No such Type in internal Namespace <" n ">: " t)))))))
       (throw (Exception. (str "No such internal Namespace: " ns-key))))))

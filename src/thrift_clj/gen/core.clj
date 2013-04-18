@@ -6,27 +6,27 @@
 
 (defprotocol Value
   "Protocol for Values."
-  (->thrift* [this]
+  (to-thrift* [this]
     "Convert Value to Thrift Representation if possible.")
-  (->thrift-unchecked* [this]
+  (to-thrift-unchecked* [this]
     "Convert Value to Thrift Representation without checking optionality & co.")
-  (->clj* [this]
+  (to-clj* [this]
     "Convert Value to Clojure Representation if possible."))
 
 (defn ->thrift
   [v]
   (if (satisfies? Value v)
-    (->thrift* v)
+    (to-thrift* v)
     v))
 
 (defn ->thrift-unchecked
   [v]
   (if (satisfies? Value v)
-    (->thrift-unchecked* v)
+    (to-thrift-unchecked* v)
     v))
 
 (defn ->clj
   [v]
   (if (satisfies? Value v)
-    (->clj* v)
+    (to-clj* v)
     v))

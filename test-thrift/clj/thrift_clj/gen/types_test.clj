@@ -8,7 +8,7 @@
 
 (fact "about structs with primitive fields"
   (let [cn (Name. "Some" "One")
-        tn (thrift/->thrift cn)
+        ^thriftclj.structs.Name tn (thrift/->thrift cn)
         rn (thrift/->clj tn)]
     (class tn) => thriftclj.structs.Name
     (class rn) => (class cn)
@@ -17,7 +17,7 @@
     (.getFirstName tn) => (:firstName cn)
     (.getLastName tn) => (:lastName cn))
   (let [cn (Name. nil "One")
-        tn (thrift/->thrift cn)]
+        ^thriftclj.structs.Name tn (thrift/->thrift cn)]
     (class tn) => thriftclj.structs.Name
     (.isSetFirstName tn) => falsey)
   (let [cn (Name. nil nil)]
@@ -25,7 +25,7 @@
 
 (fact "about structs with structured fields"
   (let [cp (Person. (Name. "Some" "One") nil)
-        tp (thrift/->thrift cp)
+        ^thriftclj.structs.Person tp (thrift/->thrift cp)
         rp (thrift/->clj tp)
         cn (:name cp)
         tn (.getName tp)
@@ -50,7 +50,7 @@
 
 (fact "about structs with enum fields"
   (let [cl (Location. 12345 "City" Country/US)
-        tl (thrift/->thrift cl)
+        ^thriftclj.structs.Location tl (thrift/->thrift cl)
         cc (:country cl)
         tc (.getCountry tl)]
     (class tl) => thriftclj.structs.Location
@@ -61,7 +61,7 @@
 
 (fact "about structs with set fields"
   (let [cpl (People. (set (repeat 5 (Person. (Name. "Some" "One") nil))) nil nil)
-        tpl (thrift/->thrift cpl)
+        ^thriftclj.structs.People tpl (thrift/->thrift cpl)
         rpl (thrift/->clj tpl)]
     (.getPeopleSet tpl) => #(instance? java.util.Set %)
     (.getPeopleSet tpl) => #(every? (partial instance? thriftclj.structs.Person) %)
@@ -70,7 +70,7 @@
 
 (fact "about structs with list fields"
   (let [cpl (People. nil (vec (repeat 5 (Person. (Name. "Some" "One") nil))) nil)
-        tpl (thrift/->thrift cpl)
+        ^thriftclj.structs.People tpl (thrift/->thrift cpl)
         rpl (thrift/->clj tpl)]
     (.getPeopleList tpl) => #(instance? java.util.List %)
     (.getPeopleList tpl) => #(every? (partial instance? thriftclj.structs.Person) %)
@@ -79,7 +79,7 @@
 
 (fact "about structs with map fields"
   (let [cpl (People. nil nil (into {} (repeat 5 [0 (Person. (Name. "Some" "One") nil)])))
-        tpl (thrift/->thrift cpl)
+        ^thriftclj.structs.People tpl (thrift/->thrift cpl)
         rpl (thrift/->clj tpl)]
     (.getPeopleMap tpl) => #(instance? java.util.Map %)
     (keys (.getPeopleMap tpl)) => #(every? integer? %)

@@ -30,7 +30,7 @@
   (findByLocation [this loc]
     (java.util.HashSet. result-list)))
 
-(def telephone-book (Dummy.))
+(def ^Dummy telephone-book (Dummy.))
 
 ;; ## Tests
 

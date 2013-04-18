@@ -34,10 +34,13 @@
 (defn- ^ConfigurationBuilder create-configuration
   "Create Configuration needed for analysis of the given packages."
   [packages scanners]
-  (doto (ConfigurationBuilder.)
-    (.filterInputsBy (create-prefix-filter packages))
-    (.setUrls (create-classpath-urls packages))
-    (.setScanners (create-scanners scanners))))
+  (let [^FilterBuilder f (create-prefix-filter packages)
+        ^java.util.List urls (create-classpath-urls packages)
+        ^"[Lorg.reflections.scanners.Scanner;" s (create-scanners scanners)]
+    (doto (ConfigurationBuilder.)
+      (.filterInputsBy f)
+      (.setUrls urls)
+      (.setScanners s))))
 
 (defn- ^Reflections create-reflection*
   "Create `Reflections` object capable of examining the given packages."
@@ -56,17 +59,17 @@
   (let [constructors (.getConstructors class)]
     (map
       (fn [constr]
-        (into [] (.getParameterTypes constr)))
+        (into [] (.getParameterTypes ^java.lang.reflect.Constructor constr)))
       constructors)))
 
 (defn inner-class
   [^Class class ^String name]
-  (first (filter #(= (.getSimpleName %) name) (.getDeclaredClasses class))))
+  (first (filter #(= (.getSimpleName ^Class %) name) (.getDeclaredClasses class))))
 
 ;; ## Scanning Packages
 
 (defn find-subtypes
   "Find types that implement or extend the given base type."
   [base-type packages]
-  (let [reflect (create-reflection packages)]
+  (let [^Reflections reflect (create-reflection packages)]
     (.getSubTypesOf reflect base-type)))

@@ -5,10 +5,10 @@
 
 (defn thrift-service-methods
   "Get seq of methods defined in a service."
-  [service]
-  (when-let [iface (reflect/inner-class service "Iface")]
+  [^Class service]
+  (when-let [^Class iface (reflect/inner-class service "Iface")]
     (map 
-      (fn [m]
+      (fn [^java.lang.reflect.Method m]
         (-> {}
           (assoc :name (.getName m))
           (assoc :params (into [] (.getParameterTypes m)))

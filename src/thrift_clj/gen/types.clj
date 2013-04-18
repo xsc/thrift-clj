@@ -23,8 +23,9 @@
   [t]
   `(extend-type ~t 
      Value
-     (->thrift* [v#] v#)
-     (->clj* [v#] v#)))
+     (to-thrift* [v#] v#)
+     (to-thrift-unchecked* [v#] v#)
+     (to-clj* [v#] v#)))
 
 (defbase nil)
 (defbase java.lang.String)
@@ -36,28 +37,34 @@
 
 (extend-type java.util.Set
   Value
-  (->thrift* [this]
-    (java.util.HashSet. (map ->thrift this)))
-  (->clj* [this]
+  (to-thrift* [this]
+    (let [^java.util.List l (map ->thrift this)]
+      (java.util.HashSet. l)))
+  (to-thrift-unchecked* [this]
+    (to-thrift* this))
+  (to-clj* [this]
     (set (map ->clj this))))
 
 (extend-type java.util.List
   Value
-  (->thrift* [this]
-    (java.util.ArrayList. (map ->thrift this)))
-  (->clj* [this]
+  (to-thrift* [this]
+    (map ->thrift this))
+  (to-thrift-unchecked* [this]
+    (to-thrift* this))
+  (to-clj* [this]
     (vec (map ->clj this))))
 
 (extend-type java.util.Map
   Value
-  (->thrift* [this]
-    (java.util.HashMap. 
-      (->> this
-        (map 
-          (fn [[k v]]
-            (vector (->thrift k) (->thrift v))))
-        (into {}))))
-  (->clj* [this]
+  (to-thrift* [this]
+    (->> this
+      (map 
+        (fn [[k v]]
+          (vector (->thrift k) (->thrift v))))
+      (into {})))
+  (to-thrift-unchecked* [this]
+    (to-thrift* this))
+  (to-clj* [this]
     (->> this
       (map 
         (fn [[k v]]
@@ -66,9 +73,11 @@
 
 (extend-type clojure.lang.IPersistentVector
   Value
-  (->thrift* [this]
-    (java.util.ArrayList. (map ->thrift this)))
-  (->clj* [this]
+  (to-thrift* [this]
+    (map ->thrift this))
+  (to-thrift-unchecked* [this]
+    (to-thrift* this))
+  (to-clj* [this]
     (vec (map ->clj this))))
 
 ;; ## Form Generation Helpers
@@ -80,9 +89,9 @@
         find-fn (u/static (u/inner thrift-type "_Fields") "findByThriftId")]
     `(extend-type ~thrift-type
        Value
-       (->thrift* [~v] (new ~thrift-type ~v))
-       (->thrift-unchecked* [~v] (new ~thrift-type ~v))
-       (->clj* [~v]
+       (to-thrift* [~v] (new ~thrift-type ~v))
+       (to-thrift-unchecked* [~v] (new ~thrift-type ~v))
+       (to-clj* [~v]
          (new 
            ~clojure-type
            ~@(for [id (map :id mta)]
@@ -96,14 +105,14 @@
         obj (gensym "o")]
     `(defrecord ~clojure-type [~@fields]
        Value
-       (->clj* [v#] v#)
-       (->thrift-unchecked* [~'_]
+       (to-clj* [v#] v#)
+       (to-thrift-unchecked* [~'_]
          (let [~obj (new ~thrift-type)]
            ~@(for [[{:keys[require id wrapper]} sym] (map vector mta fields)]
                (let [value (if wrapper `(~wrapper ~sym) sym)]
                  `(.setFieldValue ~obj (~find-fn ~id) (and ~sym (->thrift ~value)))))
            ~obj))
-       (->thrift* [~'_]
+       (to-thrift* [~'_]
          (let [~obj (new ~thrift-type)]
            ~@(for [[{:keys[require id wrapper]} sym] (map vector mta fields)]
                (let [value (if wrapper `(~wrapper ~sym) sym)]

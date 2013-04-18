@@ -40,35 +40,35 @@
 ;; `TTransport` is taken as-is, Integers are used as a local TCP
 ;; port, a vector is used as TCP host/port pair.
 
-(defprotocol ->Transport
+(defprotocol TransportConvertable
   "Protocol for Things convertable to TTransport."
-  (->transport [this]))
+  (to-transport [this]))
 
 (extend-type TTransport
-  ->Transport
-  (->transport [this] this))
+  TransportConvertable
+  (to-transport [this] this))
 
-(extend-protocol ->Transport
+(extend-protocol TransportConvertable
   java.lang.Byte
-  (->transport [this]
+  (to-transport [this]
     (tcp (int this)))
   java.lang.Short
-  (->transport [this]
+  (to-transport [this]
     (tcp (int this)))
   java.lang.Integer
-  (->transport [this]
+  (to-transport [this]
     (tcp this))
   java.lang.Long
-  (->transport [this]
+  (to-transport [this]
     (tcp (int this))))
 
 (extend-type clojure.lang.IPersistentVector
-  ->Transport
-  (->transport [this]
+  TransportConvertable
+  (to-transport [this]
     (when-not (seq this)
       (throw (Exception. "Cannot convert empty Vector to TTransport.")))
     (condp = (count this)
-      1 (->transport (first this))
+      1 (to-transport (first this))
       2 (let [[a b] this]
           (cond (instance? InputStream a) (streams a b)
                 (instance? OutputStream a) (streams b a)

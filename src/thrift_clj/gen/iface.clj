@@ -21,7 +21,8 @@
   (let [cls (u/full-class-symbol service-class)
         iface-cls (u/inner cls "Iface")
         mth (s/thrift-service-methods service-class)
-        param-syms (repeatedly gensym)]
+        param-syms (repeatedly gensym)
+        iface-sym (vary-meta (gensym "iface-") assoc :tag iface-cls)]
     `(do 
        ~@(when (reload-iface? iface-cls)
            [`(nsp/internal-ns-remove '~iface-cls)])
@@ -30,9 +31,10 @@
          ~@(for [{:keys[name params]} mth]
              (let [params (take (count params) param-syms)]
                `(defn ~(symbol name)
-                  [client# ~@params]
+                  [~iface-sym ~@params]
                   (->clj
-                    (. client# ~(symbol name) 
+                    (. ~iface-sym
+                       ~(symbol name) 
                        ~@(map #(list `->thrift %) params)))))))
        (nsp/internal-ns-require '~iface-cls '~iface-alias))))
 

@@ -5,7 +5,10 @@
             [thrift-clj.client.core :as client]
             [thrift-clj.thrift.services :as s :only [thrift-service-methods]]
             [thrift-clj.utils.symbols :as u]
-            [thrift-clj.utils.namespaces :as nsp]))
+            [thrift-clj.utils.namespaces :as nsp])
+  (:import org.apache.thrift.transport.TTransport
+           org.apache.thrift.protocol.TProtocol))
+
 
 ;; ## Clients
 ;;
@@ -31,10 +34,11 @@
   [client-sym cls mth]
   (let [iface (u/inner cls "Iface")
         param-syms (repeatedly gensym)
-        c (gensym)]
-    `(deftype ~client-sym [~c transport#]
+        c (vary-meta (gensym) assoc :tag iface)
+        t (vary-meta (gensym "transport-") assoc :tag `TTransport)]
+    `(deftype ~client-sym [~c ~t]
        java.io.Closeable
-       (close [this#] (.close transport#))
+       (close [this#] (.close ~t))
        ~iface
        ~@(for [{:keys[name params]} mth]
            (let [params (take (count params) param-syms)]
@@ -44,12 +48,14 @@
 (defn- generate-client-defmethods
   "Generate Implementation of `thrift-clj.client.core/connect!*`"
   [client-sym cls]
-  (let [cln (u/inner cls "Client")]
+  (let [cln (u/inner cls "Client")
+        p (vary-meta (gensym "protocol-") assoc :tag `TProtocol)
+        t (vary-meta (gensym "transport-") assoc :tag `TTransport)]
     `(do
        (defmethod client/connect!* ~cln
-         [~'_ protocol# transport#]
-         (let [client# (new ~client-sym (new ~cln protocol#) transport#)]
-           (.open transport#)
+         [~'_ ~p ~t]
+         (let [client# (new ~client-sym (new ~cln ~p) ~t)]
+           (.open ~t)
            client#)))))
 
 ;; ## Import

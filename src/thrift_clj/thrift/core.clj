@@ -12,7 +12,7 @@
   [packages]
   (->> packages
     (reflect/find-subtypes TBase)
-    (filter #(nil? (.getDeclaringClass %)))))
+    (filter #(nil? (.getDeclaringClass ^Class %)))))
 
 (defn thrift-enums
   "Get set of Classes implementing `org.apache.thrift.TEnum`, i.e. Thrift-
@@ -31,5 +31,5 @@
    Thrift-generated Services."
   [packages]
   (let [processors (thrift-processors packages)
-        services (map #(.getDeclaringClass %) processors)]
+        services (map #(.getDeclaringClass ^Class %) processors)]
     (set (filter (complement nil?) services))))

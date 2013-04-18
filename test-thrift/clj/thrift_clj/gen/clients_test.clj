@@ -37,7 +37,7 @@
       (let [port (+ 10000 (rand-int 10000))
             server (?server telephone-book port :protocol ?proto)]
         (thrift/serve! server)
-        (with-open [c (thrift/connect! TB port :protocol ?proto)]
+        (with-open [^java.io.Closeable c (thrift/connect! TB port :protocol ?proto)]
           (TB/storePerson c person-clj) => truthy
           (TB/storePerson c person-thr) => truthy
           (let [r (TB/findByName c "Some" "One")]
