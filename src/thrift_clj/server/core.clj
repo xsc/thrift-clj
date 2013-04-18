@@ -51,13 +51,13 @@
     (TSimpleServer. (wrap-args TServer$Args t iface opts))))
 
 (defn ^TServer multi-threaded-server
-  "Create multi-threaded Server using the given Processor."
+  "Create multi-threaded Server using the given Iface Implementation."
   [iface port & opts]
   (let [t (create-blocking-transport port opts)]
     (TThreadPoolServer. (wrap-args TThreadPoolServer$Args t iface opts))))
 
 (defn ^TServer nonblocking-server
-  "Create non-blocking Server using the given Processor."
+  "Create non-blocking Server using the given Iface Implementation."
   [iface port & opts]
   (let [t (create-nonblocking-transport port opts)]
     (TNonblockingServer. (wrap-args TNonblockingServer$Args t iface opts))))
