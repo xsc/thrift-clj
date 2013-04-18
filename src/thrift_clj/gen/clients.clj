@@ -15,17 +15,6 @@
 ;; Clients need an alias that will be used as a var containing a reference to
 ;; the client class. Also, the service interface will be imported using that alias.
 
-;; ## Multimethods
-
-(defmulti wrap-client
-  "Wrap Thrift Client to satisfy protocol Client."
-  (fn [cls client transport] cls))
-
-(defmulti new-client
-  "Create new Instance of a Client of the given Class, using the
-   given Protocol."
-  (fn [cls protocol] cls))
-
 ;; ## Form Generation Helpers
 
 (defn- generate-client-type
