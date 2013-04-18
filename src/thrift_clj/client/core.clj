@@ -2,7 +2,9 @@
        :author "Yannick Scherer" }
   thrift-clj.client.core
   (:require [thrift-clj.protocol.core :as proto]
-            [thrift-clj.client.transport :as t]))
+            [thrift-clj.client.transport :as t])
+  (:import [org.apache.thrift.transport TTransport]
+           [org.apache.thrift.protocol TProtocol]))
 
 ;; ## Client Instance
 ;;
@@ -13,7 +15,7 @@
 (defmulti connect!*
   "Create new Client of the given Class using the given options (e.g. Transport,
    Protocol, ...)."
-  (fn [class protocol transport] class)
+  (fn [class ^TProtocol protocol ^TTransport transport] class)
   :default nil)
 
 (defmethod connect!* nil
@@ -28,7 +30,7 @@
                                   (if (keyword? protocol)
                                     [protocol]
                                     protocol))
-        trans (t/->transport transport)
+        ^TTransport trans (t/->transport transport)
         proto (apply proto/protocol proto-id trans proto-args)]
     (connect!* client-class proto trans)))
 

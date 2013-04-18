@@ -17,6 +17,7 @@
 (def person-thr (thrift/->thrift person-clj))
 (def location-clj (Location. 12345 "City" Country/US))
 (def location-thr (thrift/->thrift location-clj))
+(def ^java.util.List result-list [person-thr])
 
 ;; ## Dummy Implementation
 
@@ -25,9 +26,9 @@
   (storePerson [this p]
     (instance? thriftclj.structs.Person p))
   (findByName [this firstName lastName]
-    (java.util.HashSet. [person-thr]))
+    (java.util.HashSet. result-list))
   (findByLocation [this loc]
-    (java.util.HashSet. [person-thr])))
+    (java.util.HashSet. result-list)))
 
 (def telephone-book (Dummy.))
 
