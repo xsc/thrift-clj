@@ -5,7 +5,6 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq thrift-compiler
   - which thrift 
-install: lein2 with-profile dev,test-all deps
 script: lein2 midje-all
 jdk:
   - openjdk7

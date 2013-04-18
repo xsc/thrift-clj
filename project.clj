@@ -12,8 +12,6 @@
                  [org.slf4j/slf4j-log4j12 "1.5.2"]
                  [potemkin "0.2.1"]]
 
-  :warn-on-reflection true
-
   :profiles {:dev {:dependencies [[midje "1.5.1"]]
                    :plugins [[lein-midje "3.0.0"]]}
              :doc {:plugins [[codox "0.6.4"]
@@ -22,6 +20,7 @@
                            :output-dir "doc/autodoc"}}
              :test-all {:plugins [[lein-thriftc "0.1.0"]]
                         :prep-tasks ["thriftc"]
+                        :warn-on-reflection true
                         :test-paths ["test-thrift/clj"]
                         :thriftc {:source-paths ["test-thrift/thrift"]}}}
 
