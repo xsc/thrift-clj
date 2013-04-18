@@ -42,7 +42,7 @@
 (tabular
   (tabular
     (tabular
-      (fact "about serializable/deserializable protocols"
+      (fact "about serialize-only protocols"
         (let [s (serializer ?protocol)
               data-bytes (value->bytes s ?value)
               data-string (value->string s ?value)]
