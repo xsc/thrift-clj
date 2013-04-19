@@ -23,7 +23,7 @@ that version (or any other one that was tested with this library).
 __Automatic Thrift Compilation__
 
 I recommend [lein-thriftc](https://github.com/xsc/lein-thriftc) for automatic compilation of Thrift IDL files to Java
-class files. It is maintained by me and should thus be compatible with thrift-clj.
+class files.
 
 ## Example
 
