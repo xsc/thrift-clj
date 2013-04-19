@@ -62,6 +62,20 @@
   (to-transport [this]
     (tcp (int this))))
 
+(extend-type java.lang.String
+  TransportConvertable
+  (to-transport [this]
+    (if (.startsWith this "http://")
+      (http this)
+      (if-let [idx (.indexOf this ":")]
+        (try
+          (let [host (.substring this 0 idx)
+                port (Integer/parseInt (.substring this (inc idx)))]
+            (tcp host port))
+          (catch Exception ex 
+            (throw (Exception. (str "Cannot convert String to TTransport: " this) ex))))
+        (throw (Exception. (str "Cannot convert String to TTransport: " this)))))))
+
 (extend-type clojure.lang.IPersistentVector
   TransportConvertable
   (to-transport [this]
