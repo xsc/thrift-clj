@@ -126,6 +126,7 @@ __Clojure__
 - ~~more protocols/servers/clients~~
 - asynchronous client/server
 - union?
+- exceptions
 - tests & documentation
 - ...
 
