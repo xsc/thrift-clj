@@ -62,19 +62,21 @@
                                     (contains? #{"catch" "finally"} (name (first f))))))
                            forms)
         handlers (group-by (comp keyword name first) handlers)
+        e (gensym "e-")
         ex (gensym "ex-")]
     `(try 
        (do ~@forms)
-       (catch Exception e#
-         (let [~ex (->clj e#)]
+       (catch Exception ~e
+         (let [~ex (->clj ~e)]
            (cond ~@(mapcat
                      (fn [[_ cls sym & body]]
                        (vector
-                         `(instance? ~cls ~ex)
-                         `(let [~sym ~ex]
-                            (do ~@body))))
+                         `(instance? ~cls ~ex) `(let [~sym ~ex]
+                                                  (do ~@body))
+                         `(instance? ~cls ~e) `(let [~sym ~e]
+                                                 (do ~@body))))
                      (:catch handlers))
-                 :else (throw e#))))
+                 :else (throw ~e))))
        ~@(seq (:finally handlers)))))
 
 ;; ## Load Certain Resources
