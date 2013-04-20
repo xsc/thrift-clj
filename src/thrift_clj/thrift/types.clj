@@ -2,7 +2,7 @@
        :author "Yannick Scherer" }
   thrift-clj.thrift.types
   (:import (java.lang.reflect Field)
-           (org.apache.thrift TBase TEnum TFieldIdEnum)
+           (org.apache.thrift TBase TEnum TFieldIdEnum TException)
            (org.apache.thrift.meta_data FieldMetaData FieldValueMetaData)))
 
 ;; ## Types
@@ -107,3 +107,8 @@
   "Check if Class represents a Thrift Enum."
   [^Class class]
   (.isAssignableFrom TEnum class))
+
+(defn thrift-exception?
+  "Check if Class represents a Thrift Exception."
+  [^Class class]
+  (.isAssignableFrom TException class))
