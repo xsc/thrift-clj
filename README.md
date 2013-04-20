@@ -4,9 +4,6 @@
 
 Using Thrift from Clojure as if it was Clojure.
 
-__Note__: This is an alpha release. The API might change at any point (but, at least for the most prominent parts, 
-probably won't).
-
 ## Usage
 
 thrift-clj is available via [Clojars](http://clojars.org/thrift-clj).
