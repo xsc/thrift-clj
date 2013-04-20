@@ -43,6 +43,40 @@
 (import-fn srv/serve!)
 (import-fn srv/stop!)
 
+;; ## Exceptions
+
+(defmacro throw
+  "Throw Exception. May take the Clojure representation of a Thrift Exception."
+  [ex & args]
+  `(throw (->thrift ~ex) ~@args))
+
+(defmacro try
+  "Try executing the given Forms catching Exceptions that can be identified by their
+   Clojure equivalent."
+  [& forms]
+  (let [[forms handlers] (split-with 
+                           (fn [f]
+                             (not
+                               (and (seq? f)
+                                    (symbol? (first f))
+                                    (contains? #{"catch" "finally"} (name (first f))))))
+                           forms)
+        handlers (group-by (comp keyword name first) handlers)
+        ex (gensym "ex-")]
+    `(try 
+       (do ~@forms)
+       (catch Exception e#
+         (let [~ex (->clj e#)]
+           (cond ~@(mapcat
+                     (fn [[_ cls sym & body]]
+                       (vector
+                         `(instance? ~cls ~ex)
+                         `(let [~sym ~ex]
+                            (do ~@body))))
+                     (:catch handlers))
+                 :else (throw e#))))
+       ~@(seq (:finally handlers)))))
+
 ;; ## Load Certain Resources
 
 ;; ### Helpers
