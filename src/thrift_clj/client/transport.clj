@@ -8,18 +8,19 @@
 
 ;; ## Transports
 
-(defn ^TTransport tcp
+(defn tcp
   "Create TCP transport."
-  ([port] (tcp "localhost" port))
-  ([host port] (TSocket. (str host) (int port))))
+  (^TTransport [port] (tcp "localhost" port))
+  (^TTransport [host port] (TSocket. (str host) (int port))))
 
-(defn ^TTransport tcp-async
+(defn tcp-async
   "Create non-blocking TCP transport."
-  ([port] (tcp-async "localhost" port))
-  ([host port] (TNonblockingSocket. (str host) (int port))))
+  (^TTransport [port] (tcp-async "localhost" port))
+  (^TTransport [host port] (TNonblockingSocket. (str host) (int port))))
 
-(defn ^TTransport http
+(defn http
   "Create HTTP transport."
+  ^TTransport
   [url & {:keys[connect-timeout read-timeout custom-headers]}]
   (let [^THttpClient c (THttpClient. (str url))]
     (when (integer? connect-timeout)
@@ -30,8 +31,9 @@
       (.setCustomHeaders c custom-headers))
     c))
 
-(defn ^TTransport streams
+(defn streams
   "Create IOStream transport."
+  ^TTransport
   [^InputStream in ^OutputStream out]
   (TIOStreamTransport. in out))
 

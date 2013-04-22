@@ -22,9 +22,10 @@
   [class & _]
   (throw (Exception. (str "Could not create Client: " class))))
 
-(defn connect!
+(defn connect! 
   "Create new Client of the given Class that connects to the given
    service."
+  ^java.io.Closeable 
   [client-class transport & {:keys[protocol]}]
   (let [[proto-id & proto-args] (let [protocol (or protocol :compact)]
                                   (if (keyword? protocol)

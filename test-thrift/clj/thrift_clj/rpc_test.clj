@@ -38,7 +38,7 @@
       (with-state-changes [(before :facts (thrift/serve! server))
                            (after :facts (thrift/stop! server))]
         (fact "about calling a service on localhost"
-          (with-open [^java.io.Closeable c (thrift/connect! TB ["localhost" port] :protocol ?proto)]
+          (with-open [c (thrift/connect! TB ["localhost" port] :protocol ?proto)]
             (TB/storePerson c person-clj) => truthy
             (TB/storePerson c person-thr) => truthy
             (let [r (TB/findByName c "Some" "One")]
@@ -60,7 +60,7 @@
       (with-state-changes [(before :facts (thrift/serve! server))
                            (after :facts (thrift/stop! server))]
         (fact "about exception transfer"
-          (with-open [^java.io.Closeable c (thrift/connect! TB ["localhost" port] :protocol ?proto)]
+          (with-open [c (thrift/connect! TB ["localhost" port] :protocol ?proto)]
             (thrift/try 
               (TB/storePerson c error-person-clj)
               (catch StorageError s
