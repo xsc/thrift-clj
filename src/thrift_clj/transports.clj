@@ -3,7 +3,8 @@
   thrift-clj.transports
   (:import [org.apache.thrift.transport
             TTransport TSocket TNonblockingSocket 
-            THttpClient TIOStreamTransport TFramedTransport
+            THttpClient TIOStreamTransport 
+            TFramedTransport TFastFramedTransport
             TServerSocket TNonblockingServerSocket]
            [java.io InputStream OutputStream]
            [java.net InetSocketAddress]))
@@ -84,10 +85,21 @@
 
 (defn framed
   "Wrap transport with framed transport (prefixes messages with 4 byte frame size)."
-  (^TTransport [t]
-   (TFramedTransport. (->transport t)))
-  (^TTransport [t max-length]
-   (TFramedTransport. (->transport t) (int max-length))))
+  ^TTransport 
+  [t & {:keys[max-frame-length]}]
+  (if max-frame-length
+    (TFramedTransport. (->transport t) (int max-frame-length))
+    (TFramedTransport. (->transport t))))
+
+(defn fast-framed
+  "Wrap transport with fast framed transport (compatible with `framed`, but using
+   persistent byte buffers)."
+  ^TTransport
+  [t & {:keys[max-frame-length initial-buffer-size]}]
+  (TFastFramedTransport. 
+    (->transport t)
+    (int (or initial-buffer-size TFastFramedTransport/DEFAULT_BUF_CAPACITY))
+    (int (or max-frame-length TFastFramedTransport/DEFAULT_MAX_LENGTH))))
 
 ;; ## Client Transports
 

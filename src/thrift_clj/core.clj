@@ -31,6 +31,8 @@
 (import-fn client/connect!)
 (import-fn client/disconnect!)
 
+(import-fn transport/framed)
+(import-fn transport/fast-framed)
 (import-fn transport/tcp)
 (import-fn transport/tcp-async)
 (import-fn transport/http)
