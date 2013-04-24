@@ -9,9 +9,11 @@
             [thrift-clj.gen.services :as s]
             [thrift-clj.gen.clients :as c]
             [thrift-clj.gen.iface :as i]
-            [thrift-clj.client.core :as client]
-            [thrift-clj.client.transport :as ct]
-            [thrift-clj.server.core :as srv]
+
+            [thrift-clj.client :as client]
+            [thrift-clj.server :as server]
+            [thrift-clj.transports :as transport]
+
             [thrift-clj.thrift.core :as thr]))
 
 ;; ## Concept
@@ -28,20 +30,23 @@
 
 (import-fn client/connect!)
 (import-fn client/disconnect!)
-(import-fn ct/tcp)
-(import-fn ct/tcp-async)
-(import-fn ct/http)
-(import-fn ct/streams)
+
+(import-fn transport/tcp)
+(import-fn transport/tcp-async)
+(import-fn transport/http)
+(import-fn transport/streams)
+(import-fn transport/blocking-server-transport)
+(import-fn transport/nonblocking-server-transport)
 
 (import-fn gen/->thrift)
 (import-fn gen/->clj)
 
-(import-fn srv/single-threaded-server)
-(import-fn srv/multi-threaded-server)
-(import-fn srv/nonblocking-server)
-(import-fn srv/serve-and-block!)
-(import-fn srv/serve!)
-(import-fn srv/stop!)
+(import-fn server/single-threaded-server)
+(import-fn server/multi-threaded-server)
+(import-fn server/nonblocking-server)
+(import-fn server/serve-and-block!)
+(import-fn server/serve!)
+(import-fn server/stop!)
 
 ;; ## Exceptions
 

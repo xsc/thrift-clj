@@ -2,7 +2,7 @@
        :author "Yannick Scherer" }
   thrift-clj.gen.clients
   (:require [thrift-clj.gen.iface :as ifc]
-            [thrift-clj.client.core :as client]
+            [thrift-clj.client :as client]
             [thrift-clj.thrift.services :as s :only [thrift-service-methods]]
             [thrift-clj.utils.symbols :as u]
             [thrift-clj.utils.namespaces :as nsp])

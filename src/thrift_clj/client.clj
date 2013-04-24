@@ -1,8 +1,8 @@
 (ns ^{ :doc "Client Infrastructure"
        :author "Yannick Scherer" }
-  thrift-clj.client.core
+  thrift-clj.client
   (:require [thrift-clj.protocol.core :as proto]
-            [thrift-clj.client.transport :as t])
+            [thrift-clj.transports :as t])
   (:import [org.apache.thrift.transport TTransport]
            [org.apache.thrift.protocol TProtocol]))
 
@@ -31,7 +31,7 @@
                                   (if (keyword? protocol)
                                     [protocol]
                                     protocol))
-        ^TTransport trans (t/to-transport transport)
+        trans (t/->transport transport)
         proto (apply proto/protocol proto-id trans proto-args)]
     (connect!* client-class proto trans)))
 
