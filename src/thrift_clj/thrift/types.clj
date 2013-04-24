@@ -20,7 +20,7 @@
 
 (defmulti ^:private extend-field-metadata-map
   "Type-specific Extension of Metadata Map."
-  (fn [metadata-map ^FieldValueMetaData metadata-obj] 
+  (fn [metadata-map ^FieldValueMetaData _] 
     (:type metadata-map))
   :default nil)
 

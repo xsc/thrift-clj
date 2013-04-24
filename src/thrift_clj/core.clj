@@ -2,19 +2,17 @@
        :author "Yannick Scherer" }
   thrift-clj.core
   (:refer-clojure :exclude [import])
-  (:use [potemkin :only [import-macro import-fn]]
-        clojure.tools.logging)
+  (:use [potemkin :only [import-macro import-fn]])
   (:require [thrift-clj.gen.core :as gen]
             [thrift-clj.gen.types :as t]
             [thrift-clj.gen.services :as s]
             [thrift-clj.gen.clients :as c]
             [thrift-clj.gen.iface :as i]
-
             [thrift-clj.client :as client]
             [thrift-clj.server :as server]
             [thrift-clj.transports :as transport]
-
-            [thrift-clj.thrift.core :as thr]))
+            [thrift-clj.thrift.core :as thr]
+            [clojure.tools.logging :as log]))
 
 ;; ## Concept
 ;;
@@ -96,7 +94,7 @@
   (try
     (Class/forName n)
     (catch Exception ex
-      (error ex "Could not load Class:" n)
+      (log/error ex "Could not load Class:" n)
       (throw ex))))
 
 (defn- generate-class-map

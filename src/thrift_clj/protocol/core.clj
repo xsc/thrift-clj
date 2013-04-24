@@ -11,11 +11,11 @@
 
 (defmulti ^TProtocolFactory protocol-factory*
   "Create Protocol Factory of the given Type with the given Options."
-  (fn [id opts] id)
+  (fn [id _] id)
   :default nil)
 
 (defmethod protocol-factory* nil
-  [id opts]
+  [id _]
   (throw (Exception. (str "Unknown Protocol: " id))))
 
 (defn ^TProtocolFactory protocol-factory

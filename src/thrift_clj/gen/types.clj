@@ -1,9 +1,9 @@
 (ns ^{ :doc "Thrift Type Import"
        :author "Yannick Scherer" }
   thrift-clj.gen.types
-  (:use thrift-clj.gen.core
-        clojure.tools.logging)
-  (:require [thrift-clj.thrift.types :as t]
+  (:use [clojure.tools.logging :only [debug info warn error]])
+  (:require [thrift-clj.gen.core :as c]
+            [thrift-clj.thrift.types :as t]
             [thrift-clj.utils.symbols :as u]
             [thrift-clj.utils.namespaces :as nsp]))
 
@@ -22,7 +22,7 @@
   "Define types that are identical in Thrift and Clojure."
   [t]
   `(extend-type ~t 
-     Value
+     c/Value
      (to-thrift* [v#] v#)
      (to-thrift-unchecked* [v#] v#)
      (to-clj* [v#] v#)))
@@ -36,49 +36,49 @@
 (defbase java.lang.Boolean)
 
 (extend-type java.util.Set
-  Value
+  c/Value
   (to-thrift* [this]
-    (let [^java.util.List l (map ->thrift this)]
+    (let [^java.util.List l (map c/->thrift this)]
       (java.util.HashSet. l)))
   (to-thrift-unchecked* [this]
-    (to-thrift* this))
+    (c/to-thrift* this))
   (to-clj* [this]
-    (set (map ->clj this))))
+    (set (map c/->clj this))))
 
 (extend-type java.util.List
-  Value
+  c/Value
   (to-thrift* [this]
-    (map ->thrift this))
+    (map c/->thrift this))
   (to-thrift-unchecked* [this]
-    (to-thrift* this))
+    (c/to-thrift* this))
   (to-clj* [this]
-    (vec (map ->clj this))))
+    (vec (map c/->clj this))))
 
 (extend-type java.util.Map
-  Value
+  c/Value
   (to-thrift* [this]
     (->> this
       (map 
         (fn [[k v]]
-          (vector (->thrift k) (->thrift v))))
+          (vector (c/->thrift k) (c/->thrift v))))
       (into {})))
   (to-thrift-unchecked* [this]
-    (to-thrift* this))
+    (c/to-thrift* this))
   (to-clj* [this]
     (->> this
       (map 
         (fn [[k v]]
-          (vector (->clj k) (->clj v))))
+          (vector (c/->clj k) (c/->clj v))))
       (into {}))))
 
 (extend-type clojure.lang.IPersistentVector
-  Value
+  c/Value
   (to-thrift* [this]
-    (map ->thrift this))
+    (map c/->thrift this))
   (to-thrift-unchecked* [this]
-    (to-thrift* this))
+    (c/to-thrift* this))
   (to-clj* [this]
-    (vec (map ->clj this))))
+    (vec (map c/->clj this))))
 
 ;; ## Form Generation Helpers
 
@@ -88,14 +88,14 @@
   (let [v (gensym "v-")
         find-fn (u/static (u/inner thrift-type "_Fields") "findByThriftId")]
     `(extend-type ~thrift-type
-       Value
+       c/Value
        (to-thrift* [~v] (new ~thrift-type ~v))
        (to-thrift-unchecked* [~v] (new ~thrift-type ~v))
        (to-clj* [~v]
          (new 
            ~clojure-type
            ~@(for [id (map :id mta)]
-               `(->clj (.getFieldValue ~v (~find-fn ~id)))))))))
+               `(c/->clj (.getFieldValue ~v (~find-fn ~id)))))))))
 
 (defn- generate-clojure-type
   "Generate Record Type that can be converted to its Thrift equivalent."
@@ -104,23 +104,23 @@
         find-fn (u/static (u/inner thrift-type "_Fields") "findByThriftId")
         obj (gensym "o")]
     `(defrecord ~clojure-type [~@fields]
-       Value
+       c/Value
        (to-clj* [v#] v#)
        (to-thrift-unchecked* [~'_]
          (let [~obj (new ~thrift-type)]
            ~@(for [[{:keys[require id wrapper]} sym] (map vector mta fields)]
                (let [value (if wrapper `(~wrapper ~sym) sym)]
-                 `(.setFieldValue ~obj (~find-fn ~id) (and ~sym (->thrift ~value)))))
+                 `(.setFieldValue ~obj (~find-fn ~id) (and ~sym (c/->thrift ~value)))))
            ~obj))
        (to-thrift* [~'_]
          (let [~obj (new ~thrift-type)]
            ~@(for [[{:keys[require id wrapper]} sym] (map vector mta fields)]
                (let [value (if wrapper `(~wrapper ~sym) sym)]
                  (if (= require :optional)
-                   `(.setFieldValue ~obj (~find-fn ~id) (and ~sym (->thrift ~value)))
+                   `(.setFieldValue ~obj (~find-fn ~id) (and ~sym (c/->thrift ~value)))
                    `(if-not ~sym
                       (throw (Exception. ~(str "Not an optional field: " sym)))
-                      (.setFieldValue ~obj (~find-fn ~id) (->thrift ~value))))))
+                      (.setFieldValue ~obj (~find-fn ~id) (c/->thrift ~value))))))
            ~obj)))))
 
 ;; ## Import

@@ -1,12 +1,12 @@
 (ns ^{ :doc "Thrift Service Import"
        :author "Yannick Scherer" }
   thrift-clj.gen.services
-  (:use thrift-clj.gen.core)
+  (:use [thrift-clj.gen.core :only [->clj ->thrift ->thrift-unchecked]])
   (:require [thrift-clj.gen.iface :as ifc]
             [thrift-clj.thrift.services :as s]
             [thrift-clj.utils.symbols :as u]
             [thrift-clj.utils.namespaces :as nsp])
-  (:use clojure.tools.logging)
+  (:use [clojure.tools.logging :only [debug info warn error]])
   (:import (org.apache.thrift.protocol TBinaryProtocol)))
 
 ;; ## Services
@@ -19,7 +19,7 @@
 (defmulti map->iface
   "Multimethod that can create a the service's inner `Iface` by dispatching
    a map of method-keyword/function pairs using a class."
-  (fn [cls m] cls))
+  (fn [cls _] cls))
 
 (defmulti iface->processor
   "Multimethod that converts an Iface to a Processor."

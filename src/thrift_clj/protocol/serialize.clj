@@ -1,7 +1,7 @@
 (ns ^{ :doc "Thrift Type Serialization/Deserialization"
        :author "Yannick Scherer" }
   thrift-clj.protocol.serialize
-  (:use thrift-clj.protocol.core)
+  (:use [thrift-clj.protocol.core :only [protocol-factory]])
   (:require [thrift-clj.gen.core :as c])
   (:import [org.apache.thrift TSerializer TDeserializer]))
 

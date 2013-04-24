@@ -15,7 +15,7 @@
 (defmulti connect!*
   "Create new Client of the given Class using the given options (e.g. Transport,
    Protocol, ...)."
-  (fn [class ^TProtocol protocol ^TTransport transport] class)
+  (fn [class ^TProtocol _ ^TTransport _] class)
   :default nil)
 
 (defmethod connect!* nil
