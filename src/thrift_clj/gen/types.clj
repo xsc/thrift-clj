@@ -135,7 +135,7 @@
         clojure-type (u/class-symbol t)
         thrift-type (u/full-class-symbol t)]
     (try
-      (when-let [mta (t/type-metadata t)]
+      (when-let [mta (t/thrift-type-metadata t)]
         `(do
            ~@(when (reload-types? thrift-type)
                [`(ns-unmap '~current-ns '~clojure-type)

@@ -82,7 +82,7 @@
                        (assoc :type (THRIFT_TYPES (.-type value-metadata-obj))))]
     (extend-field-metadata-map metadata-map value-metadata-obj)))
 
-(def type-metadata
+(def thrift-type-metadata
   "Get Seq of Type Field Metadata Maps."
   (let [prototype (java.util.HashMap.)]
     (fn [^Class class]
