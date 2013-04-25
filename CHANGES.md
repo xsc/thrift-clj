@@ -6,6 +6,7 @@
 - moved client functions into `thrift-clj.client` (was: `thrift-clj.client.core`)
 - moved server functions into `thrift-clj.server` (was: `thrift-clj.server.core`)
 - added `framed`/`fast-framed` client transports for use with `nonblocking-server`
+- renamed `thrift-clj.thrift.types/type-metadata` to `thrift-type-metadata`
 
 ### 0.1.0
 
