@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/xsc/thrift-clj.png?branch=master)](https://travis-ci.org/xsc/thrift-clj)
 
-Using Apache Thrift from Clojure as if it was Clojure.
+Using Thrift from Clojure as if it was Clojure.
 
 ## Usage
 
