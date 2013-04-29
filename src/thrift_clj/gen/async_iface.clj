@@ -16,37 +16,44 @@
 
 (defn generate-callback
   "Generate AsyncMethodCallback object encapsulating result and error handlers."
-  [on-complete on-error]
-  (reify AsyncMethodCallback
-    (onComplete [this response]
-      (let [result (.getResult response)]
-        (on-complete (c/->clj result))))
-    (onError [this exception]
-      (on-error (c/->clj exception)))))
+  [call-cls on-complete on-error]
+  (let [response (vary-meta (gensym "r") assoc :tag call-cls)]
+    `(reify AsyncMethodCallback
+       (onComplete [this# r#]
+         (let [~response r#
+               result# (.getResult ~response)]
+           (~on-complete (c/->clj result#))))
+       (onError [this# exception#]
+         (~on-error (c/->clj exception#))))))
 
 (defn generate-thrift-async-iface-import
   "Generate single Iface import."
   [service-class iface-alias]
   (let [cls (u/full-class-symbol service-class)
         iface-cls (u/inner cls "AsyncIface")
-        mth (s/thrift-service-methods service-class)
+        client-cls (u/inner cls "AsyncClient")
+        on-error (gensym "on-error")
+        on-complete (gensym "on-complete")
         param-syms (repeatedly gensym)
-        iface-sym (vary-meta (gensym "iface-") assoc :tag iface-cls)]
+        iface-sym (vary-meta (gensym "iface-") assoc :tag iface-cls)
+        mth (s/thrift-service-methods service-class)]
     `(do 
        ~@(when (reload-iface? iface-cls)
            [`(nsp/internal-ns-remove '~iface-cls)])
        (nsp/internal-ns 
          ~iface-cls
          ~@(for [{:keys[name params]} mth]
-             (let [params (take (count params) param-syms)]
+             (let [params (take (count params) param-syms)
+                   call-cls (u/inner client-cls (str name "_call"))]
                `(defn ~(symbol name)
                   [~iface-sym ~@params & {:keys [] :as callbacks#}]
-                  (let [on-error# (:on-error callbacks# (constantly nil))
-                        on-complete# (:on-complete callbacks# (constantly nil))
-                        handler# (generate-callback on-complete# on-error#)]
+                  (let [~on-error (:on-error callbacks# (constantly nil))
+                        ~on-complete (:on-complete callbacks# (constantly nil))
+                        handler# ~(generate-callback call-cls on-complete on-error)]
                     (. ~iface-sym
                        ~(symbol name) 
-                       ~@(map #(list `c/->thrift %) params)))))))
+                       ~@(map #(list `c/->thrift %) params)
+                       handler#))))))
        (nsp/internal-ns-require '~iface-cls '~iface-alias))))
 
 (defn generate-thrift-async-iface-imports
