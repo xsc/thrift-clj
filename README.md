@@ -67,7 +67,7 @@ __Thrift__
 ```thrift
 namespace java org.example
 
-// ... Person struct from above ...
+// ... 'Person' struct from above ...
 
 service PersonIndex {
     bool storePerson(1:i32 id, 2:Person p),
