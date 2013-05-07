@@ -116,6 +116,16 @@ __Clojure__
   (PersonIndex/getPerson c 1))
 ```
 
+## Tests
+
+You can run [Midje](https://github.com/marick/Midje) tests using the following Leiningen command:
+
+```
+lein midje-all
+```
+
+Make sure that the Apache Thrift compiler is installed.
+
 ## Roadmap
 
 - asynchronous client/server

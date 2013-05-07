@@ -13,7 +13,7 @@
                  [potemkin "0.2.1"]]
 
   :profiles {:dev {:dependencies [[midje "1.5.1"]]
-                   :plugins [[lein-midje "3.0.0"]]}
+                   :plugins [[lein-midje "3.0.1"]]}
              :doc {:plugins [[codox "0.6.4"]
                              [lein-marginalia "0.7.1"]]
                    :codox {:sources ["src/thrift_clj"]
