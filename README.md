@@ -1,6 +1,7 @@
 # thrift-clj
 
 [![Build Status](https://travis-ci.org/xsc/thrift-clj.png?branch=master)](https://travis-ci.org/xsc/thrift-clj)
+[![endorse](https://api.coderwall.com/xsc/endorsecount.png)](https://coderwall.com/xsc)
 
 Using Thrift from Clojure as if it was Clojure.
 
