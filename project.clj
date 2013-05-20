@@ -1,4 +1,4 @@
-(defproject thrift-clj "0.1.1-SNAPSHOT"
+(defproject thrift-clj "0.1.1"
   :description "Clojure and Thrift working hand in hand."
   :url "https://github.com/xsc/thrift-clj"
   :license {:name "Eclipse Public License"
@@ -10,7 +10,7 @@
                  [org.apache.thrift/libthrift "0.9.0"]
                  [javax.servlet/servlet-api "2.5"]
                  [org.slf4j/slf4j-log4j12 "1.5.2"]
-                 [potemkin "0.2.1"]]
+                 [potemkin "0.2.2"]]
 
   :profiles {:dev {:dependencies [[midje "1.5.1"]]
                    :plugins [[lein-midje "3.0.1"]]}
