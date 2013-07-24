@@ -118,7 +118,7 @@
                (let [value (if wrapper `(~wrapper ~sym) sym)]
                  (if (= require :optional)
                    `(.setFieldValue ~obj (~find-fn ~id) (and ~sym (c/->thrift ~value)))
-                   `(if-not ~sym
+                   `(if (nil? ~sym)
                       (throw (Exception. ~(str "Not an optional field: " sym)))
                       (.setFieldValue ~obj (~find-fn ~id) (c/->thrift ~value))))))
            ~obj)))))
