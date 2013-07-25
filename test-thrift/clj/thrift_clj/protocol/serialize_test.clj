@@ -12,9 +12,9 @@
 
 ;; ## Fixtures
 
-(def person-clj (Person. (Name. "Some" "One") nil))
+(def person-clj (Person. (Name. "Some" "One") nil false))
 (def person-thr (thrift/->thrift person-clj))
-(def proto-clj (Person. nil nil))
+(def proto-clj (Person. nil nil false))
 (def proto-thr (thriftclj.structs.Person.))
 (def byte-class (Class/forName "[B"))
 
