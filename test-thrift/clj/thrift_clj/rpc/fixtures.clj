@@ -12,9 +12,9 @@
 
 ;; ## Fixtures
 
-(def person-clj (Person. (Name. "Some" "One") nil))
+(def person-clj (Person. (Name. "Some" "One") nil false))
 (def person-thr (thrift/->thrift person-clj))
-(def error-person-clj (Person. (Name. "Some" "Two") nil))
+(def error-person-clj (Person. (Name. "Some" "Two") nil false))
 (def error-person-thr (thrift/->thrift error-person-clj))
 (def location-clj (Location. 1234 "City" Country/US))
 

@@ -13,7 +13,7 @@
 
 ;; ## Fixtures
 
-(def person-clj (Person. (Name. "Some" "One") nil))
+(def person-clj (Person. (Name. "Some" "One") nil false))
 (def person-thr (thrift/->thrift person-clj))
 (def location-clj (Location. 12345 "City" Country/US))
 (def location-thr (thrift/->thrift location-clj))
