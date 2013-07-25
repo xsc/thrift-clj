@@ -79,6 +79,18 @@
                                   (.getMessage ex)))))))
     (throw (Exception. (str "No internal Namespace for: " ns-key)))))
 
+(defn internal-ns-refer
+  "Refers to the named vars of the given internal Namespace."
+  [ns-key & symbols]
+  (if-let [ns-data (@internal-namespaces ns-key)]
+    (let [ns-id (:ns-name ns-data)]
+      (try
+        (refer ns-id :only symbols)
+        (catch Exception ex
+          (throw (Exception. (str "Failed to require internal Namespace for: " ns-key " (" ns-id ")\n"
+                                  (.getMessage ex)))))))
+    (throw (Exception. (str "No internal Namespace for: " ns-key)))))
+
 (defmacro internal-ns-import
   "Import Classes from the given internal Namespace."
   [ns-key & types]

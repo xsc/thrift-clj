@@ -139,6 +139,8 @@
         `(do
            ~@(when (reload-types? thrift-type)
                [`(ns-unmap '~current-ns '~clojure-type)
+                `(ns-unmap '~current-ns '~(symbol (str "->" clojure-type)))
+                `(ns-unmap '~current-ns '~(symbol (str "map->" clojure-type)))
                 `(nsp/internal-ns-remove '~thrift-type)])
            (nsp/internal-ns
              ~thrift-type 
@@ -146,7 +148,11 @@
              ~(extend-thrift-type clojure-type thrift-type mta))
            (nsp/internal-ns-import
              ~thrift-type
-             ~clojure-type)))
+             ~clojure-type)
+           (nsp/internal-ns-refer
+             '~thrift-type
+             '~(symbol (str "->" clojure-type))
+             '~(symbol (str "map->" clojure-type)))))
       (catch Exception ex
         (error ex "when importing type:" thrift-type)
         (throw (Exception.
