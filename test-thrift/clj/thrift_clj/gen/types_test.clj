@@ -24,7 +24,7 @@
     (thrift/->thrift cn) => (throws Exception)))
 
 (fact "about structs with structured fields"
-  (let [cp (Person. (Name. "Some" "One") nil)
+  (let [cp (Person. (Name. "Some" "One") nil false)
         ^thriftclj.structs.Person tp (thrift/->thrift cp)
         rp (thrift/->clj tp)
         cn (:name cp)
@@ -36,7 +36,8 @@
     (class rn) => (class cn)
     (.getFirstName tn) => (:firstName cn)
     (.getLastName tn) => (:lastName cn)
-    (.isSetLocation tp) => falsey))
+    (.isSetLocation tp) => falsey
+    (.isLiving tp) => falsey))
 
 (fact "about how enums are imported directly"
   (class Country/DE) => thriftclj.structs.Country
@@ -60,7 +61,7 @@
     tc => Country/US))
 
 (fact "about structs with set fields"
-  (let [cpl (People. (set (repeat 5 (Person. (Name. "Some" "One") nil))) nil nil)
+  (let [cpl (People. (set (repeat 5 (Person. (Name. "Some" "One") nil false))) nil nil)
         ^thriftclj.structs.People tpl (thrift/->thrift cpl)
         rpl (thrift/->clj tpl)]
     (.getPeopleSet tpl) => #(instance? java.util.Set %)
@@ -69,7 +70,7 @@
     (:peopleSet rpl) => #(every? (partial instance? Person) %)))
 
 (fact "about structs with list fields"
-  (let [cpl (People. nil (vec (repeat 5 (Person. (Name. "Some" "One") nil))) nil)
+  (let [cpl (People. nil (vec (repeat 5 (Person. (Name. "Some" "One") nil false))) nil)
         ^thriftclj.structs.People tpl (thrift/->thrift cpl)
         rpl (thrift/->clj tpl)]
     (.getPeopleList tpl) => #(instance? java.util.List %)
@@ -78,7 +79,7 @@
     (:peopleList rpl) => #(every? (partial instance? Person) %)))
 
 (fact "about structs with map fields"
-  (let [cpl (People. nil nil (into {} (repeat 5 [0 (Person. (Name. "Some" "One") nil)])))
+  (let [cpl (People. nil nil (into {} (repeat 5 [0 (Person. (Name. "Some" "One") nil false)])))
         ^thriftclj.structs.People tpl (thrift/->thrift cpl)
         rpl (thrift/->clj tpl)]
     (.getPeopleMap tpl) => #(instance? java.util.Map %)

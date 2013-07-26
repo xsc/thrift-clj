@@ -20,7 +20,8 @@ struct Location {
 
 struct Person {
   1: Name name,
-  2: optional Location location
+  2: optional Location location,
+  3: bool living
 }
 
 struct People {
