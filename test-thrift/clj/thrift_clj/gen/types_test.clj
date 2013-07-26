@@ -89,3 +89,10 @@
     (vals (:peopleMap cpl)) => #(every? (partial instance? Person) %)
     (keys (:peopleMap rpl)) => #(every? integer? %)
     (vals (:peopleMap rpl)) => #(every? (partial instance? Person) %)))
+
+(fact "about instantiating records with factory functions"
+  (let [positional (->Location 12345 "City" Country/US)
+        map-args (map->Location {:zip 12345 :city "City" :country Country/US})
+        standard (Location. 12345 "City" Country/US)]
+    positional => standard
+    map-args => standard))
