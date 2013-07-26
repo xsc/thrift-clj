@@ -7,10 +7,10 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.logging "0.2.6"]
                  [org.reflections/reflections "0.9.9-RC1"]
-                 [org.apache.thrift/libthrift "0.9.0"]
+                 [org.apache.thrift/libthrift "0.9.0" :exclusions [org.slf4j/slf4j-api]]
                  [javax.servlet/servlet-api "2.5"]
-                 [org.slf4j/slf4j-log4j12 "1.5.2"]
-                 [potemkin "0.2.2"]]
+                 [org.slf4j/slf4j-log4j12 "1.7.5"]
+                 [potemkin "0.3.1"]]
   :repositories  {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   :exclusions [org.clojure/clojure]
 
