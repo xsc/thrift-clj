@@ -144,6 +144,6 @@ Make sure that the Apache Thrift compiler is installed.
 
 ## License
 
-Copyright &copy; 2013 Yannick Scherer
+Copyright &copy; 2013 Yannick Scherer and Contributors
 
 Distributed under the Eclipse Public License, the same as Clojure.
