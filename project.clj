@@ -29,6 +29,6 @@
                            :output-dir "doc/autodoc"}}
              :reflection {:warn-on-reflection true}}
 
-  :aliases {"midje-all" ["with-profile" "test,1.4:test,1.5:test,1.6" "midje"]
+  :aliases {"midje-all" ["with-profile" "dev,test,1.4:dev,test,1.5:dev,test,1.6" "midje"]
             "doc-marginalia" ["with-profile" "doc" "marg" "-d" "doc/autodoc" "-f" "marginalia.html"]
             "doc-codox" ["with-profile" "doc" "doc"]})
