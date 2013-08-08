@@ -9,12 +9,12 @@
                  [org.reflections/reflections "0.9.9-RC1"]
                  [org.apache.thrift/libthrift "0.9.0" :exclusions [org.slf4j/slf4j-api]]
                  [javax.servlet/servlet-api "2.5"]
-                 [org.slf4j/slf4j-log4j12 "1.7.5"]
                  [potemkin "0.3.1"]]
   :repositories  {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   :exclusions [org.clojure/clojure]
 
-  :profiles {:test {:dependencies [[midje "1.5.1"]]
+  :profiles {:dev {:dependencies [[org.slf4j/slf4j-log4j12 "1.7.5"]]}
+             :test {:dependencies [[midje "1.5.1"]]
                     :plugins [[lein-midje "3.0.1"]
                               [lein-thriftc "0.1.0"]]
                     :prep-tasks ["thriftc"]
