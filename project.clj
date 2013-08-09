@@ -13,7 +13,7 @@
   :repositories  {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   :exclusions [org.clojure/clojure]
 
-  :profiles {:dev {:dependencies [[org.slf4j/slf4j-log4j12 "1.7.5"]]}
+  :profiles {:dev {:dependencies [[ch.qos.logback/logback-classic "1.0.13"]]}
              :test {:dependencies [[midje "1.5.1"]]
                     :plugins [[lein-midje "3.0.1"]
                               [lein-thriftc "0.1.0"]]
