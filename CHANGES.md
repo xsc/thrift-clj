@@ -1,5 +1,9 @@
 ## Changes: `thrift-clj`
 
+### 0.2.0
+
+- replaced log4j with logback, moved to `:dev` profile (thanks to @bts, pull request #3)
+
 ### 0.1.2
 
 - testing against different Clojure versions

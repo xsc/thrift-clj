@@ -15,6 +15,13 @@ __Leiningen__
 [thrift-clj "0.2.0"]
 ```
 
+Make sure to additionally include a [slf4j](http://www.slf4j.org/)-compatible logger - e.g. 
+[logback](http://logback.qos.ch/) via:
+
+```clojure
+[ch.qos.logback/logback-classic "1.0.13"]
+```
+
 __Note__: Tested with the Thrift 0.9.0 compiler. Since this depends massively on the generated code, make sure to use
 that version (or any other one that was tested with this library).
 
