@@ -1,4 +1,4 @@
-(defproject thrift-clj "0.1.2"
+(defproject thrift-clj "0.2.0"
   :description "Clojure and Thrift working hand in hand."
   :url "https://github.com/xsc/thrift-clj"
   :license {:name "Eclipse Public License"
@@ -9,7 +9,7 @@
                  [org.reflections/reflections "0.9.9-RC1"]
                  [org.apache.thrift/libthrift "0.9.0" :exclusions [org.slf4j/slf4j-api]]
                  [javax.servlet/servlet-api "2.5"]
-                 [potemkin "0.3.1"]]
+                 [potemkin "0.3.2"]]
   :repositories  {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   :exclusions [org.clojure/clojure]
 
