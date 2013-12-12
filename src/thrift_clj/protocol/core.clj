@@ -32,11 +32,10 @@
 ;; ## Protocol Implementations
 
 (defmethod protocol-factory* :binary
-  [_ {:keys[strict-read strict-write read-length]}]
+  [_ {:keys[strict-read strict-write]}]
   (TBinaryProtocol$Factory. 
     (boolean strict-read)
-    (boolean strict-write)
-    (int (or read-length 0))))
+    (boolean strict-write)))
 
 (defmethod protocol-factory* :compact
   [_ {:keys[max-network-bytes]}]
