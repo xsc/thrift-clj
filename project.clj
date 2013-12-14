@@ -1,4 +1,4 @@
-(defproject thrift-clj "0.2.0"
+(defproject thrift-clj "0.2.1"
   :description "Clojure and Thrift working hand in hand."
   :url "https://github.com/xsc/thrift-clj"
   :license {:name "Eclipse Public License"
