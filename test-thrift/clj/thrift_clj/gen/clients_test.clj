@@ -15,6 +15,11 @@
   TB/findByName => fn?
   TB/findByLocation => fn?)
 
+(fact "about current namespace after service import"
+  storePerson => nil?
+  findByName => nil?
+  findByLocation => nil?)
+
 (fact "about the client var"
   TB => thriftclj.services.TelephoneBook$Client)
 
