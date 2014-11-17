@@ -7,7 +7,7 @@
 
 ;; ## Import
 
-(thrift/import-types 
+(thrift/import-types
   [thriftclj.structs Person Name])
 
 ;; ## Fixtures

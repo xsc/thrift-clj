@@ -12,7 +12,7 @@
 
 ;; ## Blocking
 
-(tabular 
+(tabular
   (tabular
     (let [port (int (+ 10000 (rand-int 10000)))
           server (?server telephone-book port :bind "localhost" :protocol ?proto)]
@@ -20,11 +20,11 @@
                            (after :facts (thrift/stop! server))]
         (fact "about exception transfer in blocking servers"
           (with-open [c (thrift/connect! TB ["localhost" port] :protocol ?proto)]
-            (thrift/try 
+            (thrift/try
               (TB/storePerson c error-person-clj)
               (catch StorageError s
                 s)) => (StorageError. "Stupid Name.")
-            (thrift/try 
+            (thrift/try
               (TB/storePerson c error-person-thr)
               (catch StorageError s
                 s)) => (StorageError. "Stupid Name.")))))
@@ -35,18 +35,18 @@
 
 ;; ## Non-Blocking
 
-(tabular 
+(tabular
   (let [port (int (+ 10000 (rand-int 10000)))
         server (thrift/nonblocking-server telephone-book port :bind "localhost" :protocol ?proto)]
     (with-state-changes [(before :facts (thrift/serve! server))
                          (after :facts (thrift/stop! server))]
       (fact "about exception transfer in non-blocking servers"
         (with-open [c (thrift/connect! TB (thrift/framed ["localhost" port]) :protocol ?proto)]
-          (thrift/try 
+          (thrift/try
             (TB/storePerson c error-person-clj)
             (catch StorageError s
               s)) => (StorageError. "Stupid Name.")
-          (thrift/try 
+          (thrift/try
             (TB/storePerson c error-person-thr)
             (catch StorageError s
               s)) => (StorageError. "Stupid Name.")))))

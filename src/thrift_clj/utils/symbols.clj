@@ -2,7 +2,7 @@
        :author "Yannick Scherer" }
   thrift-clj.utils.symbols)
 
-(defn inner 
+(defn inner
   "Create symbol representing an inner class."
   [outer-class inner-class]
   (symbol (str outer-class "$" inner-class)))

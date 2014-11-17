@@ -37,10 +37,10 @@
         param-syms (repeatedly gensym)
         iface-sym (vary-meta (gensym "iface-") assoc :tag iface-cls)
         mth (s/thrift-service-methods service-class)]
-    `(do 
+    `(do
        ~@(when (reload-iface? iface-cls)
            [`(nsp/internal-ns-remove '~iface-cls)])
-       (nsp/internal-ns 
+       (nsp/internal-ns
          ~iface-cls
          ~@(for [{:keys[name params]} mth]
              (let [params (take (count params) param-syms)
@@ -51,7 +51,7 @@
                         ~on-complete (:on-complete callbacks# (constantly nil))
                         handler# ~(generate-callback call-cls on-complete on-error)]
                     (. ~iface-sym
-                       ~(symbol name) 
+                       ~(symbol name)
                        ~@(map #(list `c/->thrift %) params)
                        handler#))))))
        (nsp/internal-ns-require '~iface-cls '~iface-alias))))

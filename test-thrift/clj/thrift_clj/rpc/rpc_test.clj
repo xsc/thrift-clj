@@ -12,7 +12,7 @@
 
 ;; ## Blocking
 
-(tabular 
+(tabular
   (tabular
     (let [port (int (+ 10000 (rand-int 10000)))
           server (?server telephone-book port :bind "localhost" :protocol ?proto)]
@@ -37,7 +37,7 @@
 
 ;; ## Non-Blocking
 
-(tabular 
+(tabular
   (let [port (int (+ 10000 (rand-int 10000)))
         server (thrift/nonblocking-server telephone-book port :bind "localhost" :protocol ?proto)]
     (with-state-changes [(before :facts (thrift/serve! server))

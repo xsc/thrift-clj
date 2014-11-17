@@ -15,7 +15,7 @@
     => (throws thriftclj.exceptions.StorageError))
 
 (fact "about thrift/throw"
-  (thrift/throw (StorageError. "No reason.")) 
+  (thrift/throw (StorageError. "No reason."))
     => (throws thriftclj.exceptions.StorageError))
 
 (fact "about thrift/try"
@@ -32,7 +32,7 @@
       ::some)
     (catch Exception ex
       ::error)) => ::error
-  
+
   (thrift/try
     (do
       (thrift/throw (thriftclj.exceptions.StorageError.))
@@ -43,7 +43,7 @@
       ::storage-error)
     (catch Exception ex
       ::error)) => ::storage-error-thrift
-  
+
   (thrift/try
     (do
       (thrift/throw (thriftclj.exceptions.StorageError.))

@@ -1,7 +1,7 @@
 (ns ^{ :doc "Thrift Protocol Wrappers"
        :author "Yannick Scherer" }
   thrift-clj.protocol.core
-  (:import [org.apache.thrift.protocol 
+  (:import [org.apache.thrift.protocol
             TProtocol TProtocolFactory
             TBinaryProtocol$Factory TCompactProtocol$Factory
             TJSONProtocol$Factory TSimpleJSONProtocol$Factory TTupleProtocol$Factory]
@@ -33,7 +33,7 @@
 
 (defmethod protocol-factory* :binary
   [_ {:keys[strict-read strict-write]}]
-  (TBinaryProtocol$Factory. 
+  (TBinaryProtocol$Factory.
     (boolean strict-read)
     (boolean strict-write)))
 

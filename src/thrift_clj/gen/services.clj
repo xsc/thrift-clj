@@ -36,7 +36,7 @@
         options (apply hash-map options)
         m (reduce
             (fn [m [id bindings & method-impl]]
-              (assoc m (keyword id) 
+              (assoc m (keyword id)
                      `(fn [~@bindings] ~@method-impl)))
             {} implementation)]
     `(let [~@(:let options)]
@@ -50,7 +50,7 @@
 (defmacro defservice-fn
   "Create function for service generation."
   [id service-cls bindings & implementation]
-  `(defn ~id 
+  `(defn ~id
      [~@bindings]
      (service ~service-cls ~@implementation)))
 
@@ -83,10 +83,10 @@
   [type-sym cls mth]
   (let [proc (u/inner cls "Processor")
         m (gensym "m")]
-    `(do 
+    `(do
        (defmethod map->iface ~cls
          [~'_ ~m]
-         (new ~type-sym 
+         (new ~type-sym
               ~@(for [{:keys[name params]} mth]
                   `(~(keyword name) ~m))))
        (defmethod iface->processor ~type-sym
@@ -116,6 +116,6 @@
              ~(ifc/generate-thrift-iface-import service-class service-alias)
              (def ~service-alias ~cls)
              true))
-        (catch Exception ex 
+        (catch Exception ex
           (.printStackTrace ex)
           (throw (Exception. (str "Failed to import Service: " cls) ex)))))))

@@ -12,7 +12,7 @@
 (def ^:private THRIFT_TYPES
   "Mapping Thrift Type IDs to Type Keywords.
    (see: `org.apache.thrift.protocol.TType`)"
-  { 0x0 :stop   0x1 :void   0x2 :bool 
+  { 0x0 :stop   0x1 :void   0x2 :bool
     0x3 :byte   0x4 :double 0x6 :i16
     0x8 :i32    0xa :i64    0xb :string
     0xc :struct 0xd :map    0xe :set
@@ -20,7 +20,7 @@
 
 (defmulti ^:private extend-field-metadata-map
   "Type-specific Extension of Metadata Map."
-  (fn [metadata-map ^FieldValueMetaData _] 
+  (fn [metadata-map ^FieldValueMetaData _]
     (:type metadata-map))
   :default nil)
 

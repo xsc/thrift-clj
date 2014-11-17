@@ -9,7 +9,7 @@
 
 (defn- create-prefix-filter
   "Create FilterBuilder that filters by Prefix."
-  ^FilterBuilder 
+  ^FilterBuilder
   [prefixes]
   (let [builder (FilterBuilder.)]
     (doseq [prefix prefixes]
@@ -26,7 +26,7 @@
 
 (defn- create-scanners
   "Create Scanners needed for usage of `Reflections.getSubTypesOf`."
-  ^"[Lorg.reflections.scanners.Scanner;" 
+  ^"[Lorg.reflections.scanners.Scanner;"
   [scanners]
   (->>
     (concat
@@ -36,7 +36,7 @@
 
 (defn- create-configuration
   "Create Configuration needed for analysis of the given packages."
-  ^ConfigurationBuilder 
+  ^ConfigurationBuilder
   [packages scanners]
   (let [f (create-prefix-filter packages)
         urls (create-classpath-urls packages)

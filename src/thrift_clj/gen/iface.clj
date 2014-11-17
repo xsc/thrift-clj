@@ -10,7 +10,7 @@
 ;;
 ;; The Service Interface is located at `<Service>$Iface`. It can be
 ;; accessed by creating a namespace that contains a single function
-;; for each interface method, transparently converting between 
+;; for each interface method, transparently converting between
 ;; Clojure and Thrift representations.
 
 (nsp/def-reload-indicator reload-iface?)
@@ -23,10 +23,10 @@
         mth (s/thrift-service-methods service-class)
         param-syms (repeatedly gensym)
         iface-sym (vary-meta (gensym "iface-") assoc :tag iface-cls)]
-    `(do 
+    `(do
        ~@(when (reload-iface? iface-cls)
            [`(nsp/internal-ns-remove '~iface-cls)])
-       (nsp/internal-ns 
+       (nsp/internal-ns
          ~iface-cls
          ~@(for [{:keys[name params]} mth]
              (let [params (take (count params) param-syms)]
@@ -34,7 +34,7 @@
                   [~iface-sym ~@params]
                   (c/->clj
                     (. ~iface-sym
-                       ~(symbol name) 
+                       ~(symbol name)
                        ~@(map #(list `c/->thrift %) params)))))))
        (nsp/internal-ns-require '~iface-cls '~iface-alias))))
 

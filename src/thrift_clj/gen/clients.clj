@@ -18,7 +18,7 @@
 ;; ## Form Generation Helpers
 
 (defn- generate-client-type
-  "Generate Type that delegates to a contained Client, implementing `java.io.Closeable` 
+  "Generate Type that delegates to a contained Client, implementing `java.io.Closeable`
    for use with `with-open`."
   [client-sym cls mth]
   (let [iface (u/inner cls "Iface")
@@ -64,7 +64,7 @@
           `(do
              ~@(when (reload-client? cln)
                  [`(nsp/internal-ns-remove '~cln)])
-             (nsp/internal-ns 
+             (nsp/internal-ns
                ~cln
                ~(generate-client-type client-sym cls mth)
                ~(generate-client-defmethods client-sym cls))

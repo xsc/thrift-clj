@@ -19,8 +19,8 @@
   TB => thriftclj.services.TelephoneBook$Client)
 
 (fact "about unsuccessful TCP connect"
-  (thrift/connect! TB ["localhost" (+ 40000 (rand-int 10000))]) 
-    => (throws TTransportException 
+  (thrift/connect! TB ["localhost" (+ 40000 (rand-int 10000))])
+    => (throws TTransportException
                (fn [^TTransportException ex]
                  (and
                    (= (class (.getCause ex)) java.net.ConnectException)

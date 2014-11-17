@@ -13,7 +13,7 @@
   [id]
   `(let [indicator# (gensym)]
      (defonce ~(vary-meta indicator-once assoc :private true) (atom {}))
-     (defn ~(vary-meta id assoc :private true)  
+     (defn ~(vary-meta id assoc :private true)
        [v#]
        (if-let [i# (get @~indicator-once v#)]
          (when-not (= i# indicator#)
@@ -25,8 +25,8 @@
 
 ;; ## Namespace Container
 
-(defonce 
-  ^{:private true 
+(defonce
+  ^{:private true
     :doc "Namespaces that were already created and are available for `require` and `use`."}
   internal-namespaces
   (atom {}))
@@ -43,7 +43,7 @@
   [ns-key ns-id]
   (let [ns-data (-> {}
                   (assoc :ns-name ns-id))]
-    (swap! internal-namespaces 
+    (swap! internal-namespaces
            assoc ns-key ns-data)))
 
 (defmacro internal-ns
@@ -72,7 +72,7 @@
     (throw (Exception. "`internal-ns-require` needs an alias!")))
   (if-let [ns-data (@internal-namespaces ns-key)]
     (let [ns-id (:ns-name ns-data)]
-      (try 
+      (try
         (refer ns-id)
         (alias ns-alias ns-id)
         (catch Exception ex

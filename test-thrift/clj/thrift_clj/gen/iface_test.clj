@@ -8,7 +8,7 @@
 
 (thrift/import-types
   [thriftclj.structs Person Name Location Country])
-(thrift/import-iface 
+(thrift/import-iface
   [thriftclj.services.TelephoneBook :as TB])
 
 ;; ## Fixtures
@@ -51,7 +51,7 @@
         ps =not=> empty?
         ps => #(every? (partial instance? thriftclj.structs.Person) %)))
     ?c
-    (.findByName telephone-book "Some" "One") 
+    (.findByName telephone-book "Some" "One")
     (.findByLocation telephone-book location-thr))
   (.findByLocation telephone-book location-clj) => (throws Exception))
 

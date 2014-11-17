@@ -7,7 +7,7 @@
   "Get seq of methods defined in a service."
   [^Class service]
   (when-let [^Class iface (reflect/inner-class service "Iface")]
-    (map 
+    (map
       (fn [^java.lang.reflect.Method m]
         (-> {}
           (assoc :name (.getName m))

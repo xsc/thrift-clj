@@ -21,7 +21,7 @@
 (defmacro ^:private defbase
   "Define types that are identical in Thrift and Clojure."
   [t]
-  `(extend-type ~t 
+  `(extend-type ~t
      c/Value
      (to-thrift* [v#] v#)
      (to-thrift-unchecked* [v#] v#)
@@ -58,7 +58,7 @@
   c/Value
   (to-thrift* [this]
     (->> this
-      (map 
+      (map
         (fn [[k v]]
           (vector (c/->thrift k) (c/->thrift v))))
       (into {})))
@@ -66,7 +66,7 @@
     (c/to-thrift* this))
   (to-clj* [this]
     (->> this
-      (map 
+      (map
         (fn [[k v]]
           (vector (c/->clj k) (c/->clj v))))
       (into {}))))
@@ -92,7 +92,7 @@
        (to-thrift* [~v] (new ~thrift-type ~v))
        (to-thrift-unchecked* [~v] (new ~thrift-type ~v))
        (to-clj* [~v]
-         (new 
+         (new
            ~clojure-type
            ~@(for [id (map :id mta)]
                `(c/->clj (.getFieldValue ~v (~find-fn ~id)))))))))
@@ -143,7 +143,7 @@
                 `(ns-unmap '~current-ns '~(symbol (str "map->" clojure-type)))
                 `(nsp/internal-ns-remove '~thrift-type)])
            (nsp/internal-ns
-             ~thrift-type 
+             ~thrift-type
              ~(generate-clojure-type clojure-type thrift-type mta)
              ~(extend-thrift-type clojure-type thrift-type mta))
            (nsp/internal-ns-import

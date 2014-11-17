@@ -31,8 +31,8 @@
     (let [proto (c/->thrift-unchecked prototype)]
       (.deserialize this proto data)
       (c/->clj proto)))
-  (string->value 
-    ([this prototype string] 
+  (string->value
+    ([this prototype string]
      (let [proto (c/->thrift-unchecked prototype)]
        (.fromString this proto string)
        (c/->clj proto)))
@@ -47,17 +47,17 @@
   Serializer
   (value->bytes [this v]
     (value->bytes serializer v))
-  (value->string [this v] 
+  (value->string [this v]
     (value->string serializer v))
-  (value->string [this v charset] 
+  (value->string [this v charset]
     (value->string serializer v charset))
 
   Deserializer
   (bytes->value [this prototype data]
     (bytes->value deserializer prototype data))
-  (string->value [this prototype string] 
+  (string->value [this prototype string]
     (string->value deserializer prototype string))
-  (string->value [this prototype string charset] 
+  (string->value [this prototype string charset]
     (string->value deserializer prototype string charset)))
 
 ;; ## Serializer Creation
