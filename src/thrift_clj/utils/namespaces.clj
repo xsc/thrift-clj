@@ -53,7 +53,8 @@
     (let [current-ns (ns-name *ns*)
           unique-name (symbol (str "ns" (.hashCode (str ns-key))))]
       `(do
-         (ns ~unique-name (:refer-clojure :only []))
+         (ns ~unique-name
+           (:refer-clojure :only ~'[fn find-ns]))
          ~@body
          (in-ns '~current-ns)
          (internal-ns-add '~ns-key '~unique-name)
