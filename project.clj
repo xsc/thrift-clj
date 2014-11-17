@@ -13,23 +13,24 @@
   :repositories  {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   :exclusions [org.clojure/clojure]
 
-  :profiles {:dev {:dependencies [[ch.qos.logback/logback-classic "1.1.2"]]}
-             :test {:dependencies [[midje "1.6.3"]]
-                    :plugins [[lein-midje "3.1.3"]
-                              [lein-thriftc "0.2.1"]]
-                    :hooks [leiningen.thriftc]
-                    :test-paths ["test-thrift/clj"]
-                    :javac-opts ["-source" "1.6" "-target" "1.6"]
-                    :thriftc {:source-paths ["test-thrift/thrift"]}}
-             :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
+  :profiles {:dev {:dependencies [[ch.qos.logback/logback-classic "1.1.2"]
+                                  [midje "1.6.3"]]
+                   :plugins [[lein-midje "3.1.3"]
+                             [lein-thriftc "0.2.1"]]
+                   :hooks [leiningen.thriftc]
+                   :test-paths ["test-thrift/clj"]
+                   :javac-opts ["-source" "1.6" "-target" "1.6"]
+                   :thriftc {:source-paths ["test-thrift/thrift"]}}
              :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
+             :1.7 {:dependencies [[org.clojure/clojure "1.7.0-master-SNAPSHOT"]]}
              :doc {:plugins [[codox "0.6.4"]
                              [lein-marginalia "0.7.1"]]
                    :codox {:sources ["src/thrift_clj"]
                            :output-dir "doc/autodoc"}}
              :reflection {:warn-on-reflection true}}
 
-  :aliases {"midje-all" ["with-profile" "dev,test,1.4:dev,test,1.5:dev,test,1.6" "midje"]
+  :aliases {"all" ["with-profile" "+1.5:+1.6:+1.7"]
+            "test" "midje"
             "doc-marginalia" ["with-profile" "doc" "marg" "-d" "doc/autodoc" "-f" "marginalia.html"]
             "doc-codox" ["with-profile" "doc" "doc"]})
