@@ -2,20 +2,16 @@
 
 Using Thrift from Clojure as if it was Clojure.
 
-[![Build Status](https://travis-ci.org/xsc/thrift-clj.png?branch=master)](https://travis-ci.org/xsc/thrift-clj)
+[![Build Status](https://travis-ci.org/xsc/thrift-clj.svg?branch=master)](https://travis-ci.org/xsc/thrift-clj)
 [![endorse](https://api.coderwall.com/xsc/endorsecount.png)](https://coderwall.com/xsc)
 
 ## Usage
 
-thrift-clj is available via [Clojars](http://clojars.org/thrift-clj).
+__Leiningen ([via Clojars](http://clojars.org/thrift-clj))__
 
-__Leiningen__
+[![Clojars Project](http://clojars.org/thrift-clj/latest-version.svg)](http://clojars.org/thrift-clj)
 
-```clojure
-[thrift-clj "0.2.1"]
-```
-
-Make sure to additionally include a [slf4j](http://www.slf4j.org/)-compatible logger - e.g. 
+Make sure to additionally include a [slf4j](http://www.slf4j.org/)-compatible logger - e.g.
 [logback](http://logback.qos.ch/) via:
 
 ```clojure
@@ -32,7 +28,7 @@ class files.
 
 ## Example
 
-A working example demonstrating Service and Client implementation should always be available as 
+A working example demonstrating Service and Client implementation should always be available as
 [thrift-clj-example](https://github.com/xsc/thrift-clj-example). A small peek follows.
 
 ### Accessing Types
@@ -55,13 +51,13 @@ __Clojure__
 
 ```clojure
 (require '[thrift-clj.core :as thrift])
-(thrift/import 
+(thrift/import
   (:types [org.example Person]))
-  
-(def clj-p (Person. "Some" "One" 99)) 
+
+(def clj-p (Person. "Some" "One" 99))
 ;; => #ns_1071852349.Person{:firstName "Some", :lastName "One", :age 99}
 
-(def thr-p (thrift/->thrift clj-p))   
+(def thr-p (thrift/->thrift clj-p))
 ;; => #<Person Person(firstName:Some, lastName:One, age:99)>
 
 (class clj-p) ;; => ns_1071852349.Person
@@ -87,7 +83,7 @@ __Clojure__
 
 ```clojure
 (require '[thrift-clj.core :as thrift])
-(thrift/import 
+(thrift/import
   (:types [org.example Person])
   (:services org.example.PersonIndex))
 
@@ -102,8 +98,8 @@ __Clojure__
         true)))
   (getPerson [id]
     (info "Retrieving Person for ID:" id)
-    (@person-db id))) 
-    
+    (@person-db id)))
+
 (thrift/serve-and-block!
   (thrift/multi-threaded-server
     person-index-service 7007
@@ -115,10 +111,10 @@ __Clojure__
 
 ```clojure
 (require '[thrift-clj.core :as thrift])
-(thrift/import 
+(thrift/import
   (:types [org.example Person])
   (:clients org.example.PersonIndex))
-  
+
 (with-open [c (thrift/connect! PersonIndex ["localhost" 7007])]
   (PersonIndex/storePerson c 1 (Person. "Some" "One" 99))
   (PersonIndex/getPerson c 1))
