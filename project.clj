@@ -1,8 +1,10 @@
 (defproject thrift-clj "0.3.0-SNAPSHOT"
   :description "Clojure and Thrift working hand in hand."
   :url "https://github.com/xsc/thrift-clj"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :license {:name "MIT License"
+            :url "http://opensource.org/licenses/MIT"
+            :year 2013
+            :key "mit"}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.logging "0.3.1"]
