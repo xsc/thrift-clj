@@ -2,8 +2,8 @@
        :author "Yannick Scherer" }
   thrift-clj.transports
   (:import [org.apache.thrift.transport
-            TTransport TSocket TNonblockingSocket 
-            THttpClient TIOStreamTransport 
+            TTransport TSocket TNonblockingSocket
+            THttpClient TIOStreamTransport
             TFramedTransport TFastFramedTransport
             TServerSocket TNonblockingServerSocket]
            [java.io InputStream OutputStream]
@@ -60,7 +60,7 @@
           (let [host (.substring this 0 idx)
                 port (Integer/parseInt (.substring this (inc idx)))]
             (tcp host port))
-          (catch Exception ex 
+          (catch Exception ex
             (throw (Exception. (str "Cannot convert String to TTransport: " this) ex))))
         (throw (Exception. (str "Cannot convert String to TTransport: " this)))))))
 
@@ -85,7 +85,7 @@
 
 (defn framed
   "Wrap transport with framed transport (prefixes messages with 4 byte frame size)."
-  ^TTransport 
+  ^TTransport
   [t & {:keys[max-frame-length]}]
   (if max-frame-length
     (TFramedTransport. (->transport t) (int max-frame-length))
@@ -96,7 +96,7 @@
    persistent byte buffers)."
   ^TTransport
   [t & {:keys[max-frame-length initial-buffer-size]}]
-  (TFastFramedTransport. 
+  (TFastFramedTransport.
     (->transport t)
     (int (or initial-buffer-size TFastFramedTransport/DEFAULT_BUF_CAPACITY))
     (int (or max-frame-length TFastFramedTransport/DEFAULT_MAX_LENGTH))))

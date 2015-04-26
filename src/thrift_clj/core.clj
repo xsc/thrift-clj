@@ -19,7 +19,7 @@
 ;; __thrift-clj__ uses Clojure's Java interoperability to access Classes generated
 ;; by Thrift. It will wrap each class (when imported using thrift-clj's macros) in
 ;; a separate namespace, aliasing it as desired, importing types, creating wrapper
-;; functions, etc... 
+;; functions, etc...
 
 ;; ## Imported
 
@@ -59,7 +59,7 @@
   "Try executing the given Forms catching Exceptions that can be identified by their
    Clojure equivalent."
   [& forms]
-  (let [[forms handlers] (split-with 
+  (let [[forms handlers] (split-with
                            (fn [f]
                              (not
                                (and (seq? f)
@@ -69,7 +69,7 @@
         handlers (group-by (comp keyword name first) handlers)
         e (gensym "e-")
         ex (gensym "ex-")]
-    `(try 
+    `(try
        (do ~@forms)
        (catch Exception ~e
          (let [~ex (->clj ~e)]
@@ -99,13 +99,13 @@
 
 (defn- generate-class-map
   [specs]
-  (reduce 
+  (reduce
     (fn [m t]
-      (cond (symbol? t) 
+      (cond (symbol? t)
               (assoc m (load-class (name t)) nil)
             (and (vector? t) (= (second t) :as))
               (assoc m (load-class (name (first t))) (nth t 2))
-            (vector? t) 
+            (vector? t)
               (reduce
                 (fn [m c]
                   (assoc m (load-class (str (name (first t)) "." (name c))) nil))
