@@ -5,49 +5,77 @@
             [thrift-clj.transports :as t]
             [thrift-clj.protocol.core :as proto])
   (:import [org.apache.thrift.server
-            TServer TSimpleServer 
-            TThreadPoolServer TNonblockingServer 
-            TServer$Args TServer$AbstractServerArgs 
-            TThreadPoolServer$Args TNonblockingServer$Args]
+            TServer
+            TSimpleServer
+            TThreadPoolServer
+            TNonblockingServer]
            [org.apache.thrift.transport TServerSocket TNonblockingServerSocket] ;; why do I need these?
            [org.apache.thrift TProcessor]))
 
 ;; ## Helpers
 
-(defn- wrap-args
-  ^TServer$AbstractServerArgs
-  [^TServer$AbstractServerArgs base iface opts]
-  (let [opts (apply hash-map opts)
-        p (:protocol opts :compact)
-        proto (if (keyword? p)
-                (proto/protocol-factory p)
-                (apply proto/protocol-factory p))]
-    (doto base
-      (.protocolFactory proto)
-      (.processor (s/iface->processor iface)))))
+(defn- opts->protocol-factory
+  [{:keys [protocol] :or {protocol :compact}}]
+  (if (keyword? protocol)
+    (proto/protocol-factory protocol)
+    (apply proto/protocol-factory protocol)))
+
+(defmacro ^:private construct-server
+  "Call server constructor, depending on Thrift version."
+  [args-class-name class-name transport iface opts & [transport-factory]]
+  (let [args-n (str "org.apache.thrift.server." args-class-name)
+        class-n (str "org.apache.thrift.server." class-name)]
+    (if (try
+          (Class/forName args-n)
+          (catch ClassNotFoundException _))
+      `(new
+         ~(symbol class-n)
+         (doto (new ~(symbol args-n) ~transport)
+           (.protocolFactory (opts->protocol-factory ~opts))
+           (.processor (s/iface->processor ~iface))))
+      `(new
+         ~(symbol class-n)
+         (s/iface->processor ~iface)
+         ~transport
+         ~(or transport-factory
+              `(org.apache.thrift.transport.TTransportFactory.))
+         (opts->protocol-factory ~opts)))))
 
 ;; ## Server Types
 
 (defn single-threaded-server
   "Create single-threaded Server using the given Iface Implementation."
   ^TServer
-  [iface port & opts]
-  (let [t (t/blocking-server-transport port opts)]
-    (TSimpleServer. (wrap-args (TServer$Args. t) iface opts))))
+  [iface port & {:as opts}]
+  (construct-server
+    TServer$Args
+    TSimpleServer
+    (t/blocking-server-transport port opts)
+    iface
+    opts))
 
 (defn multi-threaded-server
   "Create multi-threaded Server using the given Iface Implementation."
   ^TServer
-  [iface port & opts]
-  (let [t (t/blocking-server-transport port opts)]
-    (TThreadPoolServer. (wrap-args (TThreadPoolServer$Args. t) iface opts))))
+  [iface port & {:as opts}]
+  (construct-server
+    TThreadPoolServer$Args
+    TThreadPoolServer
+    (t/blocking-server-transport port opts)
+    iface
+    opts))
 
 (defn nonblocking-server
   "Create non-blocking Server using the given Iface Implementation."
   ^TServer
-  [iface port & opts]
-  (let [t (t/nonblocking-server-transport port opts)]
-    (TNonblockingServer. (wrap-args (TNonblockingServer$Args. t) iface opts))))
+  [iface port & {:as opts}]
+  (construct-server
+    TNonblockingServer$Args
+    TNonblockingServer
+    (t/nonblocking-server-transport port opts)
+    iface
+    opts
+    (org.apache.thrift.transport.TFramedTransport$Factory.)))
 
 ;; ## Start/Stop
 
