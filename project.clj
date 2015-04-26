@@ -18,7 +18,7 @@
   :profiles {:dev {:dependencies [[ch.qos.logback/logback-classic "1.1.2"]
                                   [midje "1.6.3"]]
                    :plugins [[lein-midje "3.1.3"]
-                             [lein-thriftc "0.2.1"]]
+                             [lein-thriftc "0.2.2"]]
                    :hooks [leiningen.thriftc]
                    :test-paths ["test-thrift/clj"]
                    :javac-opts ["-source" "1.6" "-target" "1.6"]
