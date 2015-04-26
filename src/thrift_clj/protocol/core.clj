@@ -4,7 +4,7 @@
   (:import [org.apache.thrift.protocol
             TProtocol TProtocolFactory
             TBinaryProtocol$Factory TCompactProtocol$Factory
-            TJSONProtocol$Factory TSimpleJSONProtocol$Factory TTupleProtocol$Factory]
+            TJSONProtocol$Factory TSimpleJSONProtocol$Factory]
            [org.apache.thrift.transport TTransport]))
 
 ;; ## Protocol Multimethod
@@ -29,6 +29,30 @@
   (when-let [^TProtocolFactory factory (apply protocol-factory id args)]
     (.getProtocol factory transport)))
 
+;; ## Compatibility Helpers
+
+(defmacro when-protocol
+  [class-name & body]
+  (when (try
+          (Class/forName (str "org.apache.thrift.protocol." class-name))
+          (catch ClassNotFoundException _))
+    `(do ~@body)))
+
+(defmacro construct
+  [class-name & argvs]
+  (let [n (str "org.apache.thrift.protocol." class-name)
+        c (Class/forName n)
+        matches-arity? (comp
+                         (->> (.getConstructors c)
+                              (map #(.getParameterTypes
+                                      ^java.lang.reflect.Constructor %))
+                              (map alength)
+                              (set))
+                         count)
+        argv (some #(when (matches-arity? %) %) argvs)]
+    (assert argv "no matching constructor found.")
+    `(new ~(symbol n) ~@argv)))
+
 ;; ## Protocol Implementations
 
 (defmethod protocol-factory* :binary
@@ -39,8 +63,10 @@
 
 (defmethod protocol-factory* :compact
   [_ {:keys[max-network-bytes]}]
-  (TCompactProtocol$Factory.
-    (long (or max-network-bytes -1))))
+  (construct
+    TCompactProtocol$Factory
+    [(long (or max-network-bytes -1))]
+    []))
 
 (let [json-factory (TJSONProtocol$Factory.)]
   (defmethod protocol-factory* :json
@@ -52,7 +78,14 @@
     [_ _]
     simple-json-factory))
 
-(let [tuple-factory (TTupleProtocol$Factory.)]
-  (defmethod protocol-factory* :tuple
-    [_ _]
-    tuple-factory))
+(defmethod protocol-factory* :tuple
+  [_ _]
+  (println "WARN: tuple protocol not supported - falling back to compact.")
+  (protocol-factory* :compact {}))
+
+(when-protocol
+  TTupleProtocol
+  (let [tuple-factory (org.apache.thrift.protocol.TTupleProtocol$Factory.)]
+    (defmethod protocol-factory* :tuple
+      [_ _]
+      tuple-factory)))
