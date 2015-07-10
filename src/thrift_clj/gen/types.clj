@@ -35,6 +35,15 @@
 (defbase java.lang.Double)
 (defbase java.lang.Boolean)
 
+(extend-type (class (byte-array 0))
+  c/Value
+  (to-thrift* [this]
+    (java.nio.ByteBuffer/wrap this))
+  (to-thrift-unchecked* [this]
+    (c/to-thrift* this))
+  (to-clj* [this]
+    this))
+
 (extend-type java.util.Set
   c/Value
   (to-thrift* [this]

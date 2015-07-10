@@ -58,7 +58,7 @@
 
 (defmethod extend-field-metadata-map :string
   [m _]
-  (assoc m :wrapper `str))
+  (assoc m :wrapper `identity))
 
 (defmethod extend-field-metadata-map :set
   [m _]
