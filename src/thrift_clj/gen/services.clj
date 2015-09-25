@@ -6,7 +6,7 @@
             [thrift-clj.thrift.services :as s]
             [thrift-clj.utils.symbols :as u]
             [thrift-clj.utils.namespaces :as nsp])
-  (:use [clojure.tools.logging :only [debug info warn error]])
+  (:use [clojure.tools.logging :only [trace info warn error]])
   (:import (org.apache.thrift.protocol TBinaryProtocol)))
 
 ;; ## Services
@@ -71,11 +71,11 @@
                  impl-sym (symbol name)
                  handler-call `(->thrift (~handler ~@(map #(list `->clj %) params)))]
              `(~impl-sym [this# ~@params]
-                (debug ~(str "[" method-name "]") "Entering Method ...")
+                (trace ~(str "[" method-name "]") "Entering Method ...")
                 (when-not ~handler
                   (throw (Exception. ~(str "[" method-name "] Service Method not implemented."))))
                 (let [r# ~handler-call]
-                  (debug ~(str "[" method-name "] Done."))
+                  (trace ~(str "[" method-name "] Done."))
                   r#)))))))
 
 (defn- generate-service-defmethods
