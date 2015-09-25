@@ -2,10 +2,13 @@
 
 ### 0.3.0
 
-- drop compatibility with Clojure 1.4.0.
-- upgrade base Clojure version to 1.6.0.
+- drop compatibility with Clojure 1.4.0 and JDK6.
+- upgrade base Clojure version to 1.7.0.
+- upgrade libthrift to 0.9.2.
 - upgrade dependencies.
 - exclude clojure.core functions from auto-generated namespaces.
+- fields of type `string` can now only handle `String` values (no coercion).
+- fields of type `binary` are now handled correctly.
 
 ### 0.2.1
 
