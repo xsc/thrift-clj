@@ -29,3 +29,7 @@ struct People {
   2: optional list<Person> peopleList,
   3: optional map<i32,Person> peopleMap
 }
+
+struct BinaryStruct {
+  1: optional binary binaryData
+}

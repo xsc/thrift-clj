@@ -4,7 +4,8 @@
   (:require [thrift-clj.core :as thrift]))
 
 (thrift/import-types
-  [thriftclj.structs Name Country Location Person People])
+  [thriftclj.structs
+   BinaryStruct Name Country Location Person People])
 
 (fact "about structs with primitive fields"
   (let [cn (Name. "Some" "One")
@@ -89,6 +90,18 @@
     (vals (:peopleMap cpl)) => #(every? (partial instance? Person) %)
     (keys (:peopleMap rpl)) => #(every? integer? %)
     (vals (:peopleMap rpl)) => #(every? (partial instance? Person) %)))
+
+(fact "about structs with binary fields (byte array)."
+      (let [cbs (BinaryStruct. (.getBytes "DATA" "UTF-8"))
+            ^thriftclj.structs.BinaryStruct tbs (thrift/->thrift cbs)]
+        (.getBinaryData tbs) => #(instance? (class (byte-array 0)) %)
+        (String. (.getBinaryData tbs) "UTF-8") => "DATA"))
+
+(fact "about structs with binary fields (ByteBuffer)."
+      (let [cbs (BinaryStruct. (java.nio.ByteBuffer/wrap (.getBytes "DATA" "UTF-8")))
+            ^thriftclj.structs.BinaryStruct tbs (thrift/->thrift cbs)]
+        (.getBinaryData tbs) => #(instance? (class (byte-array 0)) %)
+        (String. (.getBinaryData tbs) "UTF-8") => "DATA"))
 
 (fact "about instantiating records with factory functions"
   (let [positional (->Location 12345 "City" Country/US)
