@@ -49,16 +49,15 @@
 (defmacro internal-ns
   "Create new internal Namespace."
   [ns-key & body]
-  (when-not (@internal-namespaces ns-key)
-    (let [current-ns (ns-name *ns*)
-          unique-name (symbol (str "ns" (.hashCode (str ns-key))))]
-      `(do
-         (ns ~unique-name
-           (:refer-clojure :only ~'[fn find-ns]))
-         ~@body
-         (in-ns '~current-ns)
-         (internal-ns-add '~ns-key '~unique-name)
-         nil))))
+  (let [current-ns (ns-name *ns*)
+        unique-name (symbol (str "ns" (.hashCode (str ns-key))))]
+    `(do
+       (ns ~unique-name
+         (:refer-clojure :only ~'[fn find-ns]))
+       ~@body
+       (in-ns '~current-ns)
+       (internal-ns-add '~ns-key '~unique-name)
+       nil)))
 
 (defn internal-namespace-exists?
   "Does a given internal Namespace exist?"
