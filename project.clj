@@ -27,7 +27,8 @@
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
              :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
              :doc {:plugins [[codox "0.8.13"]]
-                   :codox {:sources ["src/thrift_clj"]}}
+                   :codox {:sources ["src/thrift_clj"]
+                           :include [thrift-clj.core]}}
              :reflection {:warn-on-reflection true}}
 
   :aliases {"all" ["with-profile" "+1.5:+1.6:+1.7"]
