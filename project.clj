@@ -9,7 +9,7 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [org.reflections/reflections "0.9.10"]
-                 [org.apache.thrift/libthrift "0.9.2" :exclusions [org.slf4j/slf4j-api]]
+                 [org.apache.thrift/libthrift "0.9.3" :exclusions [org.slf4j/slf4j-api]]
                  [javax.servlet/servlet-api "2.5"]
                  [potemkin "0.4.1"]]
   :repositories  {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
